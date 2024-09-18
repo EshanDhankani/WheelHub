@@ -2,7 +2,6 @@ import { Box, Button, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import Link from "@mui/material/Link";
 
-
 function HomeSection({ imageSrc }) {
   return (
     <Box
@@ -26,7 +25,6 @@ function HomeSection({ imageSrc }) {
           alignItems: { xs: "center", md: "flex-start" },
           textAlign: { xs: "center", md: "left" },
           gap: 1,
-
         }}
       >
         <Typography
@@ -46,18 +44,17 @@ function HomeSection({ imageSrc }) {
             margin: 0,
           }}
         >
-           Find You Dream Car From {" "}
+          Find Your Dream Car From{" "}
           <Box component="span" sx={{ fontWeight: "bold" }}>
             WheelHub{" "}
           </Box>
-          
         </Typography>
         <Box
           sx={{
             display: "flex",
             justifyContent: { xs: "center", md: "flex-start" },
             gap: 1,
-            paddingTop: '10px',
+            paddingTop: "10px",
             paddingLeft: {
               xs: 0,
               md: 10,
@@ -65,17 +62,17 @@ function HomeSection({ imageSrc }) {
           }}
         >
           <Link href="/login">
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "#030947",
-              color: "#fff",
-              textTransform: 'none', 
-              borderRadius: '25px',
-            }}
-          >
-            Get Started
-          </Button>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#030947",
+                color: "#fff",
+                textTransform: "none",
+                borderRadius: "25px",
+              }}
+            >
+              Get Started
+            </Button>
           </Link>
           <Button
             variant="outlined"
@@ -83,9 +80,8 @@ function HomeSection({ imageSrc }) {
               backgroundColor: "#000",
               color: "#fff",
               borderColor: "#030947",
-              textTransform: 'none',
-              borderRadius: '25px'
-
+              textTransform: "none",
+              borderRadius: "25px",
             }}
           >
             Contact Us
@@ -99,7 +95,6 @@ function HomeSection({ imageSrc }) {
           justifyContent: "center",
           alignItems: "center",
           marginTop: { xs: 2, md: 0 },
-
         }}
       >
         <img

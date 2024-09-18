@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
+  CardMedia,
   Typography,
   Grid,
   Container,
   Box,
   CircularProgress,
-  Button,
   Chip,
   Paper,
   IconButton,
@@ -18,9 +18,74 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  TextField
-} from '@mui/material';
-import { MapPin, Car, Gauge, Phone, Search } from 'lucide-react';
+  TextField,
+  Button,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
+import { MapPin, Car, Gauge, Search, MessageCircle } from "lucide-react";
+import Navbar from "./Navbar";
+
+// Custom theme for enhanced visual style
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#1976d2", // A more pleasant blue for primary elements
+    },
+    secondary: {
+      main: "#f50057", // A vibrant accent color for secondary elements
+    },
+  },
+  typography: {
+    fontFamily: "'Poppins', 'Roboto', sans-serif", // Use a modern and clean font
+    h3: {
+      fontWeight: 700,
+      color: "#030947",
+    },
+    h5: {
+      fontWeight: 600,
+    },
+    body1: {
+      fontWeight: 400,
+    },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16,
+          transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+          "&:hover": {
+            transform: "translateY(-5px)",
+            boxShadow: "0 12px 20px rgba(0,0,0,0.1)",
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          padding: "12px 24px",
+          boxShadow: "0px 6px 15px rgba(0,0,0,0.1)",
+          "&:hover": {
+            backgroundColor: "#1558a6",
+            boxShadow: "0px 8px 20px rgba(0,0,0,0.15)",
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+          borderRadius: 4,
+          background: "#f5f5f5",
+        },
+      },
+    },
+  },
+});
 
 const UsedCars = () => {
   const [carAds, setCarAds] = useState([]);
@@ -28,45 +93,45 @@ const UsedCars = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const [makeModel, setMakeModel] = useState('');
-  const [city, setCity] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
+  const [makeModel, setMakeModel] = useState("");
+  const [city, setCity] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [filteredCarAds, setFilteredCarAds] = useState([]);
-  
+
   const [cityOptions, setCityOptions] = useState([]);
 
   const priceOptions = [
-    { value: '', label: 'Any' },
-    { value: 500000, label: '5 Lacs' },
-    { value: 1000000, label: '10 Lacs' },
-    { value: 1500000, label: '15 Lacs' },
-    { value: 2000000, label: '20 Lacs' },
-    { value: 2500000, label: '25 Lacs' },
-    { value: 3000000, label: '30 Lacs' },
-    { value: 4000000, label: '40 Lacs' },
-    { value: 5000000, label: '50 Lacs' },
-    { value: 7500000, label: '75 Lacs' },
-    { value: 10000000, label: '1 Crore' },
-    { value: 15000000, label: '1.5 Crore' },
-    { value: 20000000, label: '2 Crore' },
+    { value: "", label: "Any" },
+    { value: 500000, label: "5 Lacs" },
+    { value: 1000000, label: "10 Lacs" },
+    { value: 1500000, label: "15 Lacs" },
+    { value: 2000000, label: "20 Lacs" },
+    { value: 2500000, label: "25 Lacs" },
+    { value: 3000000, label: "30 Lacs" },
+    { value: 4000000, label: "40 Lacs" },
+    { value: 5000000, label: "50 Lacs" },
+    { value: 7500000, label: "75 Lacs" },
+    { value: 10000000, label: "1 Crore" },
+    { value: 15000000, label: "1.5 Crore" },
+    { value: 20000000, label: "2 Crore" },
   ];
 
   useEffect(() => {
     const fetchCarAds = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:3001/carAds');
+        const response = await axios.get("http://localhost:3001/carAds");
         setCarAds(response.data);
         setFilteredCarAds(response.data);
-        
-        const uniqueCities = [...new Set(response.data.map(ad => ad.city))];
+
+        const uniqueCities = [...new Set(response.data.map((ad) => ad.city))];
         setCityOptions(uniqueCities);
-        
+
         setError(null);
       } catch (error) {
-        console.error('Error fetching car ads:', error);
-        setError('Failed to fetch car ads. Please try again later.');
+        console.error("Error fetching car ads:", error);
+        setError("Failed to fetch car ads. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -76,14 +141,24 @@ const UsedCars = () => {
   }, []);
 
   const handleSearch = () => {
-    const filtered = carAds.filter(ad => {
-      const matchesMakeModel = !makeModel || ad.carInfo.toLowerCase().includes(makeModel.toLowerCase());
+    const filtered = carAds.filter((ad) => {
+      const matchesMakeModel =
+        !makeModel ||
+        ad.carInfo.toLowerCase().includes(makeModel.toLowerCase());
       const matchesCity = !city || ad.city.toLowerCase() === city.toLowerCase();
       const matchesMinPrice = !minPrice || ad.price >= parseInt(minPrice);
       const matchesMaxPrice = !maxPrice || ad.price <= parseInt(maxPrice);
-      return matchesMakeModel && matchesCity && matchesMinPrice && matchesMaxPrice;
+      return (
+        matchesMakeModel && matchesCity && matchesMinPrice && matchesMaxPrice
+      );
     });
     setFilteredCarAds(filtered);
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
   };
 
   const handleCarClick = (carId) => {
@@ -93,20 +168,22 @@ const UsedCars = () => {
   const handleMinPriceChange = (e) => {
     const selectedMinPrice = e.target.value;
     setMinPrice(selectedMinPrice);
-    // Reset max price if it's less than the new min price
+
     if (maxPrice && parseInt(maxPrice) <= parseInt(selectedMinPrice)) {
-      setMaxPrice('');
+      setMaxPrice("");
     }
   };
 
   const getFilteredMaxPriceOptions = () => {
     if (!minPrice) return priceOptions;
-    return priceOptions.filter(option => option.value === '' || option.value > parseInt(minPrice));
+    return priceOptions.filter(
+      (option) => option.value === "" || option.value > parseInt(minPrice)
+    );
   };
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
+      <Container maxWidth="lg" sx={{ py: 8, textAlign: "center" }}>
         <CircularProgress />
       </Container>
     );
@@ -114,155 +191,180 @@ const UsedCars = () => {
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
+      <Container maxWidth="lg" sx={{ py: 8, textAlign: "center" }}>
         <Typography color="error">{error}</Typography>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 8 }}>
-      <Typography variant="h3" gutterBottom align="center" sx={{ mb: 6, fontWeight: 'bold', color: '#1976d2' }}>
-        Used Cars Marketplace
-      </Typography>
+    <ThemeProvider theme={theme}>
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Box sx={{ mb: 4 }}>
+          <Navbar />
+        </Box>
 
-      {/* Custom Search Bar */}
-      <Paper
-        component="form"
-        sx={{
-          p: '2px 4px',
-          display: 'flex',
-          alignItems: 'center',
-          width: '100%',
-          mb: 4
-        }}
-      >
-        <TextField
-          placeholder="Make and Model"
-          value={makeModel}
-          onChange={(e) => setMakeModel(e.target.value)}
-          sx={{ flexGrow: 1 }}
-        />
-        <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel>City</InputLabel>
-          <Select
-            value={city}
-            label="City"
-            onChange={(e) => setCity(e.target.value)}
-          >
-            <MenuItem value="">Any</MenuItem>
-            {cityOptions.map((city) => (
-              <MenuItem key={city} value={city}>{city}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel>Min Price</InputLabel>
-          <Select
-            value={minPrice}
-            label="Min Price"
-            onChange={handleMinPriceChange}
-          >
-            {priceOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel>Max Price</InputLabel>
-          <Select
-            value={maxPrice}
-            label="Max Price"
-            onChange={(e) => setMaxPrice(e.target.value)}
-          >
-            {getFilteredMaxPriceOptions().map((option) => (
-              <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={handleSearch}>
-          <Search />
-        </IconButton>
-      </Paper>
+        <Typography variant="h3" gutterBottom align="center" sx={{ mb: 6 }}>
+          Used Cars Marketplace
+        </Typography>
 
-      {/* Results Count */}
-      <Typography variant="subtitle1" sx={{ mb: 2 }}>
-        {filteredCarAds.length} results found
-      </Typography>
-
-      {/* Car Ads Grid */}
-      <Grid container spacing={4}>
-        {filteredCarAds.map((ad) => (
-          <Grid item key={ad._id} xs={12} sm={6} md={4}>
-            <Card 
-              sx={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
-                },
-                cursor: 'pointer',
-              }}
-              onClick={() => handleCarClick(ad._id)}
-            >
-              <img 
-                src={`http://localhost:3001/${ad.images[0]}`} 
-                alt={ad.carInfo}
-                style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+        <Paper
+          elevation={3}
+          sx={{
+            p: 3,
+            mb: 4,
+            borderRadius: 2,
+            backgroundColor: "#fafafa",
+          }}
+        >
+          <Grid container spacing={2} alignItems="flex-end">
+            <Grid item xs={12} sm={6} md={3}>
+              <TextField
+                fullWidth
+                label="Make and Model"
+                variant="outlined"
+                value={makeModel}
+                onChange={(e) => setMakeModel(e.target.value)}
+                onKeyPress={handleKeyPress}
               />
-              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <Typography gutterBottom variant="h5" component="h2" sx={{ fontWeight: 'bold', color: '#333' }}>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>City</InputLabel>
+                <Select
+                  value={city}
+                  label="City"
+                  onChange={(e) => setCity(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                >
+                  <MenuItem value="">Any</MenuItem>
+                  {cityOptions.map((city) => (
+                    <MenuItem key={city} value={city}>
+                      {city}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={2}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Min Price</InputLabel>
+                <Select
+                  value={minPrice}
+                  label="Min Price"
+                  onChange={handleMinPriceChange}
+                  onKeyPress={handleKeyPress}
+                >
+                  {priceOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={2}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Max Price</InputLabel>
+                <Select
+                  value={maxPrice}
+                  label="Max Price"
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                >
+                  {getFilteredMaxPriceOptions().map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                startIcon={<Search />}
+                onClick={handleSearch}
+                sx={{ height: "56px", fontWeight: "bold" }}
+              >
+                Search
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
+
+        <Grid container spacing={4}>
+          {filteredCarAds.map((ad) => (
+            <Grid item key={ad._id} xs={12} sm={6} md={4}>
+              <Card
+                onClick={() => handleCarClick(ad._id)}
+                sx={{ cursor: "pointer" }}
+              >
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={`http://localhost:3001/${ad.images[0]}`}
+                  alt={ad.carInfo}
+                />
+                <CardContent>
+                  <Typography variant="h5" component="h2" gutterBottom>
                     {ad.carInfo}
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <MapPin size={18} style={{ marginRight: 8, color: '#1976d2' }} />
-                    <Typography variant="body2" color="text.secondary">
+                  <Box display="flex" alignItems="center" mb={1}>
+                    <MapPin size={18} color="#666" />
+                    <Typography variant="body1" sx={{ ml: 1 }}>
                       {ad.city}
                     </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Car size={18} style={{ marginRight: 8, color: '#1976d2' }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {ad.registeredIn} | {ad.exteriorColor}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Gauge size={18} style={{ marginRight: 8, color: '#1976d2' }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {ad.mileage.toLocaleString()} km
-                    </Typography>
-                  </Box>
-                </div>
-                <div>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
-                    <Chip  
-                      label={`PKR ${parseInt(ad.price).toLocaleString()}`}
-                      color="primary"
-                      sx={{ fontWeight: 'bold', fontSize: '1rem' }}
-                    />
-                    <Button 
-                      variant="outlined" 
-                      startIcon={<Phone size={16} />}
-                      href={`tel:${ad.mobileNumber}`}
-                      onClick={(e) => e.stopPropagation()}
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <Car size={18} color="#666" />
+                    <Typography
+                      variant="body2"
+                      color="textSecondary"
+                      sx={{ ml: 1 }}
                     >
-                      Call Seller
-                    </Button>
+                      {ad.year}
+                    </Typography>
+                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+                    <Gauge size={18} color="#666" />
+                    <Typography
+                      variant="body2"
+                      color="textSecondary"
+                      sx={{ ml: 1 }}
+                    >
+                      {ad.kms} km
+                    </Typography>
                   </Box>
-                </div>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Chip
+                      label={`PKR ${ad.price.toLocaleString()}`}
+                      color="primary"
+                      size="medium"
+                      sx={{
+                        backgroundColor: "#f50057", // Make the background pop (change color as needed)
+                        color: "#fff", // Ensure the text is visible
+                        fontSize: "1rem", // Increase the font size for better visibility
+                        fontWeight: "bold", // Make the price text bold
+                        padding: "10px", // Add some padding for a more comfortable look
+                      }}
+                    />
+                    <IconButton color="primary" aria-label="contact seller">
+                      <MessageCircle />
+                    </IconButton>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </ThemeProvider>
   );
 };
 

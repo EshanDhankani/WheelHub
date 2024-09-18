@@ -14,7 +14,7 @@ import validator from "validator";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -58,7 +58,9 @@ const Register = () => {
     event.preventDefault();
     let validationErrors = {};
 
-    const alphabeticRegex = /^[A-Za-z]+$/;
+    // const alphabeticRegex = /^[A-Za-z]+$/;
+    const alphabeticRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
+
 
     if (!alphabeticRegex.test(firstName)) {
       validationErrors.firstName = "First name should contain only alphabets.";
@@ -72,7 +74,8 @@ const Register = () => {
       validationErrors.email = "Invalid email format.";
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=[\]{};':"\\|,.<>/?]).{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=[\]{};':"\\|,.<>/?]).{8,}$/;
     if (!passwordRegex.test(password)) {
       validationErrors.password =
         "Password must be at least 8 characters long, and contain at least one uppercase letter, one number, and one special character.";
@@ -107,6 +110,30 @@ const Register = () => {
         setErrors({});
       })
       .catch((err) => {
+        console.log(err);
+        toast.error("An error occurred. Please try again.");
+      });
+
+    axios
+      .post("http://localhost:3001/register", {
+        firstName,
+        lastName,
+        email,
+        password,
+      })
+      .then((result) => {
+        if (result.data === "Already registered") {
+          toast.warning("E-mail already registered!");
+        } else {
+          toast.success("Registered successfully!", {});
+          setTimeout(() => {
+            navigate("/login");
+          }, 2000);
+        }
+        setErrors({});
+      })
+      .catch((err) => {
+        console.log(err);
         toast.error("An error occurred. Please try again.");
       });
   };
@@ -289,12 +316,12 @@ const Register = () => {
                   background: "#030947",
                   borderRadius: 5,
                   fontWeight: "bold",
-                  textTransform: 'none'
+                  textTransform: "none",
                 }}
               >
                 Sign Up
               </Button>
-              
+
               <Grid container justifyContent="center">
                 <Grid item>
                   <Link

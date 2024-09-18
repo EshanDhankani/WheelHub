@@ -5,10 +5,13 @@ import Login from "./src/components/Login";
 import ForgotPassword from "./src/components/ForgotPassword";
 import UsedCars from "./src/components/UsedCars";
 import PostAd from "./src/components/PostAd";
-import CarDetailScreen from "./src/components/CarDetailScreen";  // Make sure this path is correct
+import CarDetailScreen from "./src/components/CarDetailScreen"; 
+import MyProfile from "./src/components/MyProfile";
+
 
 function App() {
   return (
+   
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -18,8 +21,10 @@ function App() {
         <Route path="/UsedCars" element={<UsedCars />} />
         <Route path="/PostAd" element={<PostAd />} />
         <Route path="/car/:id" element={<CarDetailScreen />} />
+        <Route path="/profile" element={<MyProfile />} />
       </Routes>
     </BrowserRouter>
+   
   );
 }
 

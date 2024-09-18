@@ -1,6 +1,4 @@
-// 
-
-import React from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
@@ -12,6 +10,16 @@ import Typography from "@mui/material/Typography";
 import Drawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
 import Divider from "@mui/material/Divider";
+import { useNavigate } from "react-router-dom";
+import Dialog from "@mui/material/Dialog";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import DialogContent from "@mui/material/DialogContent";
+import Slider from "react-slick";
+import GoogleIcon from "@mui/icons-material/Google";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import ProfileMenu from "../components/ProfileMenu.jsx";
 
 const logoStyle = {
   width: "auto",
@@ -21,8 +29,11 @@ const logoStyle = {
 };
 
 const Navbar = () => {
-  const [open, setOpen] = React.useState(false);
-  const location = useLocation(); // To check the current route
+  const [open, setOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [showLoginPopup, setShowLoginPopup] = useState(false); // For login pop-up
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -33,8 +44,65 @@ const Navbar = () => {
     { text: "Auto Store", path: "/auto-store" },
     { text: "Mechanics", path: "/mechanics" },
     { text: "Videos", path: "/videos" },
-    { text: "Post an Ad", path: "/postAd" },
   ];
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/currentUser", {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData); // Set user data
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:3001/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      setUser(null);
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  const handlePostAdClick = () => {
+    if (!user) {
+      setShowLoginPopup(true);
+    } else {
+      navigate("/postAd");
+    }
+  };
+
+  const handleClosePopup = () => {
+    setShowLoginPopup(false);
+  };
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 1500,
+    arrows: false,
+  };
+
+  const handleGoogleLogin = () => {
+    window.open("http://localhost:3001/auth/google", "_self"); // Ensure this is the correct backend route
+  };
 
   return (
     <div>
@@ -59,7 +127,6 @@ const Navbar = () => {
               bgcolor: "black",
               backdropFilter: "blur(24px)",
               maxHeight: 40,
-              border: "1px solid",
               borderColor: "divider",
               boxShadow:
                 theme.palette.mode === "light"
@@ -75,6 +142,7 @@ const Navbar = () => {
             >
               <img src={"/logo1.png"} style={logoStyle} alt="Logo" />
             </Box>
+
             <Box
               sx={{
                 display: { xs: "none", md: "flex" },
@@ -90,9 +158,12 @@ const Navbar = () => {
                   sx={{
                     py: "6px",
                     px: "12px",
-                    borderBottom: location.pathname === item.path ? "2px solid #fff" : "none",
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderBottom:
+                      location.pathname === item.path
+                        ? "2px solid #fff"
+                        : "none",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
                     },
                   }}
                 >
@@ -104,7 +175,26 @@ const Navbar = () => {
                   </Typography>
                 </MenuItem>
               ))}
+              <MenuItem
+                key="Post an Ad"
+                onClick={handlePostAdClick}
+                sx={{
+                  py: "6px",
+                  px: "12px",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "600", color: "white" }}
+                >
+                  Post an Ad
+                </Typography>
+              </MenuItem>
             </Box>
+
             <Box
               sx={{
                 display: { xs: "none", md: "flex" },
@@ -112,22 +202,27 @@ const Navbar = () => {
                 alignItems: "center",
               }}
             >
-              <Button
-                color="primary"
-                variant="contained"
-                size="small"
-                component={Link}
-                to="/login"
-                sx={{
-                  fontWeight: "600",
-                  backgroundColor: "#030947",
-                  textTransform: "none",
-                  borderRadius: 15,
-                }}
-              >
-                Login
-              </Button>
+              {user ? (
+                <ProfileMenu user={user} onLogout={handleLogout} />
+              ) : (
+                <Button
+                  color="primary"
+                  variant="contained"
+                  size="small"
+                  component={Link}
+                  to="/login"
+                  sx={{
+                    fontWeight: "600",
+                    backgroundColor: "#030947",
+                    textTransform: "none",
+                    borderRadius: 15,
+                  }}
+                >
+                  Login
+                </Button>
+              )}
             </Box>
+
             <Box sx={{ display: { sm: "", md: "none" } }}>
               <Button
                 variant="text"
@@ -147,17 +242,6 @@ const Navbar = () => {
                     flexGrow: 1,
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "end",
-                      flexGrow: 1,
-                      backgroundColor: "black",
-                    }}
-                  >
-                    {/* Optional: Add a color mode toggle here */}
-                  </Box>
                   {menuItems.map((item) => (
                     <MenuItem
                       key={item.text}
@@ -166,8 +250,8 @@ const Navbar = () => {
                       onClick={toggleDrawer(false)}
                       sx={{
                         py: 1,
-                        '&:hover': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
                         },
                       }}
                     >
@@ -176,16 +260,26 @@ const Navbar = () => {
                   ))}
                   <Divider />
                   <MenuItem>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      component={Link}
-                      to="/login"
-                      sx={{ width: "100%" }}
-                      onClick={toggleDrawer(false)}
-                    >
-                      Login
-                    </Button>
+                    {user ? (
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        sx={{ width: "100%" }}
+                        onClick={handleLogout}
+                      >
+                        Logout
+                      </Button>
+                    ) : (
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        component={Link}
+                        to="/login"
+                        sx={{ width: "100%" }}
+                      >
+                        Login
+                      </Button>
+                    )}
                   </MenuItem>
                 </Box>
               </Drawer>
@@ -193,6 +287,83 @@ const Navbar = () => {
           </Toolbar>
         </Container>
       </AppBar>
+
+      {/* Custom Login Popup Dialog */}
+      <Dialog open={showLoginPopup} onClose={handleClosePopup}>
+        <IconButton
+          aria-label="close"
+          onClick={handleClosePopup}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent>
+          <Box textAlign="center" sx={{ maxWidth: 400 }}>
+            {/* Carousel Slider */}
+            <Slider {...sliderSettings}>
+              <div>
+                <img
+                  src="/assets/1.jpg"
+                  alt="Slide 1"
+                  style={{ width: "100%", maxWidth: "250px", margin: "auto" }} // Center and resize
+                />
+                <Typography variant="body1">Save Your Favourite Ads</Typography>
+              </div>
+              <div>
+                <img
+                  src="/assets/2.jpg"
+                  alt="Slide 2"
+                  style={{ width: "100%", maxWidth: "250px", margin: "auto" }} // Center and resize
+                />
+                <Typography variant="body1">
+                  Safely Connect With Buyers
+                </Typography>
+              </div>
+              <div>
+                <img
+                  src="/assets/3.jpg"
+                  alt="Slide 3"
+                  style={{ width: "100%", maxWidth: "250px", margin: "auto" }} // Center and resize
+                />
+                <Typography variant="body1">Create Quick Alerts</Typography>
+              </div>
+            </Slider>
+
+            <Typography variant="h6" component="div" gutterBottom></Typography>
+
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              gutterBottom
+            ></Typography>
+
+            <Button
+              startIcon={<GoogleIcon />}
+              variant="outlined"
+              fullWidth
+              sx={{
+                textTransform: "none",
+                mb: 1,
+                mt: 3, // Add margin-top to create space from slider dots
+              }}
+              onClick={handleGoogleLogin}
+            >
+              Continue with Google
+            </Button>
+
+            <Typography variant="caption" display="block" sx={{ mt: 2 }}>
+              By continuing, you agree to our{" "}
+              <Link href="#">Terms of Service</Link> and{" "}
+              <Link href="#">Privacy Policy</Link>.
+            </Typography>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
