@@ -14,7 +14,6 @@ const MyProfile = () => {
   });
   const navigate = useNavigate();
 
-  // Fetch current user data
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -35,7 +34,7 @@ const MyProfile = () => {
     fetchUser();
   }, []);
 
-  // Handle form inputs
+ 
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -85,8 +84,7 @@ const handleUpdate = async () => {
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
           My Profile
         </Typography>
-        
-        {/* Profile Avatar and Edit Notice */}
+  
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <Avatar sx={{ width: 80, height: 80, mb: 2 }} />
         </Box>

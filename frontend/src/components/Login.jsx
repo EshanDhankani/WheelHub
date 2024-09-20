@@ -27,7 +27,11 @@ const Login = () => {
     event.preventDefault();
 
     axios
-      .post("http://localhost:3001/login", { email, password }, { withCredentials: true })
+      .post(
+        "http://localhost:3001/login",
+        { email, password },
+        { withCredentials: true }
+      )
       .then((result) => {
         if (result.data === "Success") {
           toast.success("Login successfully!", {});
@@ -42,7 +46,10 @@ const Login = () => {
               }, 2000);
             })
             .catch((error) => {
-              console.error("Error fetching user details:", error.response ? error.response.data : error.message);
+              console.error(
+                "Error fetching user details:",
+                error.response ? error.response.data : error.message
+              );
             });
         } else {
           toast.error("Incorrect credentials! Please try again.");
@@ -68,7 +75,6 @@ const Login = () => {
           fontFamily: "Poppins, sans-serif",
         }}
       >
-        {/* Left Section */}
         <Grid
           item
           xs={false}
@@ -83,10 +89,9 @@ const Login = () => {
             boxShadow: "inset 0 0 15px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <img src="./assets/logo1.png" alt="Logo" style={{ width: "70%", maxHeight: "500px" }} />
+          <img src="./assets/logo1.png" alt="Logo" />
         </Grid>
 
-        {/* Right Section */}
         <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>
           <Box
             sx={{
@@ -97,7 +102,6 @@ const Login = () => {
               alignItems: "center",
             }}
           >
-            {/* Heading */}
             <Typography
               component="h1"
               sx={{
@@ -118,7 +122,7 @@ const Login = () => {
                   left: 0,
                   bottom: -5,
                   height: 6,
-                  width: "50%",
+                  width: "75%",
                   background:
                     "linear-gradient(120deg, #D52728, #33C0FF, #5733FF, #030947)",
                   borderRadius: "5px",
@@ -127,8 +131,12 @@ const Login = () => {
               />
             </Typography>
 
-            {/* Form */}
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 5, width: '100%' }}>
+            <Box
+              component="form"
+              noValidate
+              onSubmit={handleSubmit}
+              sx={{ mt: 5, width: "100%" }}
+            >
               <TextField
                 required
                 fullWidth
@@ -177,7 +185,6 @@ const Login = () => {
                 </Link>
               </Grid>
 
-              {/* Login Button */}
               <Button
                 type="submit"
                 fullWidth
@@ -200,47 +207,73 @@ const Login = () => {
                 Login
               </Button>
 
-              {/* Google Login */}
-              <Button
-                variant="outlined"
-                startIcon={
-                  <img
-                    src={GoogleIcon}
-                    alt="Google logo"
-                    style={{ width: "20px", height: "30px" }}
-                  />
-                }
-                onClick={handleGoogleLogin}
+              <Box
                 sx={{
-                  textTransform: "none",
-                  color: "rgba(0, 0, 0)",
-                  backgroundColor: "#fff",
-                  borderColor: "rgba(0, 0, 0, 0.23)",
-                  "&:hover": {
-                    backgroundColor: "#f5f5f5",
-                    borderColor: "rgba(0, 0, 0, 0.23)",
-                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                  },
+                  display: "flex",
+                  alignItems: "center",
+                  mt: 2,
+                  mb: 2,
                 }}
               >
-                Continue with Google
-              </Button>
+                <Box
+                  sx={{ flex: 1, height: "1px", backgroundColor: "#d1d1d1" }}
+                />
+                <Typography variant="body2" sx={{ color: "#555", mx: 2 }}>
+                  Or
+                </Typography>
+                <Box
+                  sx={{ flex: 1, height: "1px", backgroundColor: "#d1d1d1" }}
+                />
+              </Box>
 
-              <Grid container justifyContent="center" sx={{ mt: 2 }}>
-                <Link
-                  href="/register"
+              <Grid container spacing={2} justifyContent="center">
+                <Grid item>
+                  <IconButton
+                    onClick={handleGoogleLogin}
+                    sx={{
+                      backgroundColor: "#fff",
+                      borderRadius: "50%",
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                      width: "50px",
+                      height: "50px",
+                      "&:hover": {
+                        boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.15)",
+                      },
+                    }}
+                  >
+                    <img
+                      src={GoogleIcon}
+                      alt="Google logo"
+                      style={{ width: "24px", height: "24px" }}
+                    />
+                  </IconButton>
+                </Grid>
+
+                <Grid item></Grid>
+              </Grid>
+
+              <Grid container justifyContent="center" sx={{ mt: 4 }}>
+                <Typography
                   variant="body2"
                   sx={{
                     textTransform: "none",
-                    color: "#555",
+                    color: "#000000",
                     textDecoration: "none",
                   }}
                 >
-                  Don&apos;t have an account?{" "}
-                  <span style={{ color: "#D52728", fontWeight: "bold" }}>
-                    Sign Up
-                  </span>
-                </Link>
+                  Don&apos;t have an account yet?{" "}
+                  <Link
+                    href="/register"
+                    variant="body2"
+                    sx={{
+                      color: "#D52728",
+                      textDecoration: "none",
+                      "&:hover": {},
+                    }}
+                  >
+                    Create an account
+                  </Link>
+                </Typography>
               </Grid>
             </Box>
           </Box>
@@ -251,5 +284,3 @@ const Login = () => {
 };
 
 export default Login;
-
-

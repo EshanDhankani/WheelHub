@@ -56,6 +56,10 @@ app.get("/carAds", async (req, res) => {
 });
 
 app.post("/postAd", upload.array("images", 3), async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
   try {
     const {
       city,
@@ -70,6 +74,7 @@ app.post("/postAd", upload.array("images", 3), async (req, res) => {
     const images = req.files.map((file) => file.path);
 
     const newAd = new CarAdModel({
+      userId: req.session.user._id, // Store the user's ID
       city,
       carInfo,
       registeredIn,
@@ -88,23 +93,39 @@ app.post("/postAd", upload.array("images", 3), async (req, res) => {
   }
 });
 
+app.get("/myAds", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  try {
+    const userAds = await CarAdModel.find({ userId: req.session.user._id });
+    if (userAds.length === 0) {
+      return res.json({ message: "No active ads", ads: [] });
+    }
+    res.json({ message: "Success", ads: userAds });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching ads", error: error.message });
+  }
+});
+
 app.post("/register", (req, res) => {
   const { email, password, firstName, lastName } = req.body;
 
   console.log("Registering user:", { firstName, lastName, email, password });
 
-  // Check if user with the given email already exists
   FormDataModel.findOne({ email: email })
     .then((user) => {
       if (user) {
         console.log("User already registered");
         res.json("Already registered");
       } else {
-        // Create a new user document in MongoDB
         FormDataModel.create({ email, password, firstName, lastName })
           .then((log_reg_form) => {
             console.log("User registered successfully:", log_reg_form);
-            res.json(log_reg_form); // Return success response
+            res.json(log_reg_form);
           })
           .catch((err) => {
             console.error("Error registering user:", err);
@@ -162,16 +183,14 @@ app.put("/updateProfile", async (req, res) => {
   }
 
   try {
-    const { firstName, lastName, email, password } = req.body; // Destructure updated data from request body
+    const { firstName, lastName, email, password } = req.body;
 
-    // Find the user by session user ID and update their profile
     const updatedUser = await FormDataModel.findByIdAndUpdate(
-      req.session.user._id, // Use the ID stored in session
-      { firstName, lastName, email, password }, // Fields to update
-      { new: true, runValidators: true } // Return updated document and validate inputs
+      req.session.user._id,
+      { firstName, lastName, email, password },
+      { new: true, runValidators: true }
     );
 
-    // Update the session with the new user data
     req.session.user = updatedUser;
 
     res.json({ message: "Profile updated successfully", user: updatedUser });
@@ -182,33 +201,30 @@ app.put("/updateProfile", async (req, res) => {
   }
 });
 
-////
-
 app.delete("/deleteProfile", async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
 
   try {
-    // Find the user by session ID and delete them
     await FormDataModel.findByIdAndDelete(req.session.user._id);
 
-    // Destroy the session
     req.session.destroy((err) => {
       if (err) {
-        return res.status(500).json({ message: "Error logging out", error: err.message });
+        return res
+          .status(500)
+          .json({ message: "Error logging out", error: err.message });
       }
 
-      // Clear the session cookie
       res.clearCookie("connect.sid");
       res.json({ message: "Profile deleted successfully" });
     });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting profile", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error deleting profile", error: error.message });
   }
 });
-
-/////
 
 app.get("/carAds/:id", async (req, res) => {
   try {
@@ -222,6 +238,43 @@ app.get("/carAds/:id", async (req, res) => {
   }
 });
 
+app.put("/carAds/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedAd = await CarAdModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedAd) {
+      return res.status(404).json({ message: "Car ad not found" });
+    }
+
+    res.json(updatedAd);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating car ad", error: error.message });
+  }
+});
+
+
+app.delete("/carAds/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedAd = await CarAdModel.findByIdAndDelete(id);
+
+    if (!deletedAd) {
+      return res.status(404).json({ message: "Car ad not found" });
+    }
+
+    res.json({ message: "Ad deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting car ad", error: error.message });
+  }
+});
+
+
 passport.use(
   new OAuth2Strategy(
     {
@@ -232,33 +285,28 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check if a user already exists with this Google ID
         let user = await FormDataModel.findOne({ googleId: profile.id });
 
         if (!user) {
-          // If no user is found with Google ID, check by email
           user = await FormDataModel.findOne({ email: profile.email });
 
           if (user) {
-            // If a user exists with the same email, but without googleId, update the user
             user.googleId = profile.id;
             await user.save();
             console.log("Existing user found by email, updated googleId.");
           } else {
-            // If no user exists with that email, create a new one
             const fullName = `${profile.name.givenName} ${profile.name.familyName}`;
             user = new FormDataModel({
               googleId: profile.id,
               name: fullName,
               email: profile.email,
-              // No password needed for Google users
             });
             await user.save();
             console.log("New user created with Google login.");
           }
         }
 
-        return done(null, user); // Log the user in
+        return done(null, user);
       } catch (error) {
         console.error("Error during Google OAuth:", error);
         return done(error, null);
@@ -286,7 +334,7 @@ app.get(
     failureRedirect: "http://localhost:5173/login",
   }),
   (req, res) => {
-    req.session.user = req.user; // Save the user in session after Google login
+    req.session.user = req.user;
     res.redirect("http://localhost:5173/UsedCars");
   }
 );

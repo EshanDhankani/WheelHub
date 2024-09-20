@@ -96,7 +96,7 @@ const Navbar = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 1500,
+    autoplaySpeed: 1200,
     arrows: false,
   };
 
@@ -288,7 +288,6 @@ const Navbar = () => {
         </Container>
       </AppBar>
 
-      {/* Custom Login Popup Dialog */}
       <Dialog open={showLoginPopup} onClose={handleClosePopup}>
         <IconButton
           aria-label="close"
@@ -304,13 +303,13 @@ const Navbar = () => {
         </IconButton>
         <DialogContent>
           <Box textAlign="center" sx={{ maxWidth: 400 }}>
-            {/* Carousel Slider */}
+          
             <Slider {...sliderSettings}>
               <div>
                 <img
                   src="/assets/1.jpg"
                   alt="Slide 1"
-                  style={{ width: "100%", maxWidth: "250px", margin: "auto" }} // Center and resize
+                  style={{ width: "100%", maxWidth: "200px", margin: "auto" }} // Center and resize
                 />
                 <Typography variant="body1">Save Your Favourite Ads</Typography>
               </div>
@@ -318,7 +317,7 @@ const Navbar = () => {
                 <img
                   src="/assets/2.jpg"
                   alt="Slide 2"
-                  style={{ width: "100%", maxWidth: "250px", margin: "auto" }} // Center and resize
+                  style={{ width: "100%", maxWidth: "200px", margin: "auto" }} // Center and resize
                 />
                 <Typography variant="body1">
                   Safely Connect With Buyers
@@ -328,7 +327,7 @@ const Navbar = () => {
                 <img
                   src="/assets/3.jpg"
                   alt="Slide 3"
-                  style={{ width: "100%", maxWidth: "250px", margin: "auto" }} // Center and resize
+                  style={{ width: "100%", maxWidth: "200px", margin: "auto" }} // Center and resize
                 />
                 <Typography variant="body1">Create Quick Alerts</Typography>
               </div>
@@ -349,7 +348,7 @@ const Navbar = () => {
               sx={{
                 textTransform: "none",
                 mb: 1,
-                mt: 3, // Add margin-top to create space from slider dots
+                mt: 3, 
               }}
               onClick={handleGoogleLogin}
             >

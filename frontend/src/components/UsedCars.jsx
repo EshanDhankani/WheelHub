@@ -22,6 +22,7 @@ import {
   Button,
   ThemeProvider,
   createTheme,
+  Autocomplete,
 } from "@mui/material";
 import { MapPin, Car, Gauge, Search, MessageCircle } from "lucide-react";
 import Navbar from "./Navbar";
@@ -30,14 +31,14 @@ import Navbar from "./Navbar";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#1976d2", // A more pleasant blue for primary elements
+      main: "#1976d2", 
     },
     secondary: {
-      main: "#f50057", // A vibrant accent color for secondary elements
+      main: "#f50057", 
     },
   },
   typography: {
-    fontFamily: "'Poppins', 'Roboto', sans-serif", // Use a modern and clean font
+    fontFamily: "'Poppins', 'Roboto', sans-serif", 
     h3: {
       fontWeight: 700,
       color: "#030947",
@@ -102,7 +103,6 @@ const UsedCars = () => {
   const [cityOptions, setCityOptions] = useState([]);
 
   const priceOptions = [
-    { value: "", label: "Any" },
     { value: 500000, label: "5 Lacs" },
     { value: 1000000, label: "10 Lacs" },
     { value: 1500000, label: "15 Lacs" },
@@ -181,6 +181,11 @@ const UsedCars = () => {
     );
   };
 
+  // Get unique make and models for autocomplete
+  const makeModelOptions = [
+    ...new Set(carAds.map((ad) => ad.carInfo.toLowerCase())),
+  ];
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ py: 8, textAlign: "center" }}>
@@ -219,13 +224,24 @@ const UsedCars = () => {
         >
           <Grid container spacing={2} alignItems="flex-end">
             <Grid item xs={12} sm={6} md={3}>
-              <TextField
-                fullWidth
-                label="Make and Model"
-                variant="outlined"
-                value={makeModel}
-                onChange={(e) => setMakeModel(e.target.value)}
-                onKeyPress={handleKeyPress}
+              <Autocomplete
+                freeSolo
+                options={makeModelOptions.filter((option) =>
+                  makeModel.length >= 1
+                    ? option.startsWith(makeModel.toLowerCase())
+                    : false
+                )}
+                inputValue={makeModel}
+                onInputChange={(event, newValue) => setMakeModel(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Make and Model"
+                    variant="outlined"
+                    fullWidth
+                    onKeyPress={handleKeyPress}
+                  />
+                )}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
@@ -237,7 +253,7 @@ const UsedCars = () => {
                   onChange={(e) => setCity(e.target.value)}
                   onKeyPress={handleKeyPress}
                 >
-                  <MenuItem value="">Any</MenuItem>
+                  <MenuItem value="">All Cities</MenuItem>
                   {cityOptions.map((city) => (
                     <MenuItem key={city} value={city}>
                       {city}
@@ -347,11 +363,11 @@ const UsedCars = () => {
                       color="primary"
                       size="medium"
                       sx={{
-                        backgroundColor: "#f50057", // Make the background pop (change color as needed)
-                        color: "#fff", // Ensure the text is visible
-                        fontSize: "1rem", // Increase the font size for better visibility
-                        fontWeight: "bold", // Make the price text bold
-                        padding: "10px", // Add some padding for a more comfortable look
+                        backgroundColor: "#f50057",
+                        color: "#fff",
+                        fontSize: "1rem",
+                        fontWeight: "bold",
+                        padding: "10px",
                       }}
                     />
                     <IconButton color="primary" aria-label="contact seller">

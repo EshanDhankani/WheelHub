@@ -5,7 +5,7 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 
-import HomeSection from "./HomeSection"; // Import HomeText component
+import HomeSection from "./HomeSection"; 
 import Experience from "./Experience";
 import Navbar from "./Navbar";
 
