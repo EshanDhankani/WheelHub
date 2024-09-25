@@ -27,6 +27,7 @@ router.post("/postAd", upload.array("images", 3), async (req, res) => {
     const {
       city,
       carInfo,
+      year,
       registeredIn,
       exteriorColor,
       mileage,
@@ -40,6 +41,7 @@ router.post("/postAd", upload.array("images", 3), async (req, res) => {
       userId: req.user._id,
       city,
       carInfo,
+      year,
       registeredIn,
       exteriorColor,
       mileage,

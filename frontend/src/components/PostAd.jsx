@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import Navbar from "./Navbar";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Button,
   Card,
@@ -16,7 +18,11 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
-import { Camera, Car, MapPin, Gauge } from "lucide-react";
+import { Camera } from "lucide-react";
+  
+const iconStep1 = "https://wsa1.pakwheels.com/assets/sell-icons/car-221614dec8c0f3717dede556a5daad01.svg";
+const iconStep2 = "https://wsa1.pakwheels.com/assets/sell-icons/photos-708994063564767acaca738e1261f90d.svg";
+const iconStep3 = "https://wsa4.pakwheels.com/assets/sell-icons/tag-3ba531fca999b37f89be28609fe9e9c0.svg";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   maxWidth: 900,
@@ -34,7 +40,6 @@ const StyledCard = styled(Card)(({ theme }) => ({
     left: "-20px",
     right: "-20px",
     bottom: "-20px",
-    background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
     zIndex: -1,
     borderRadius: "32px",
     filter: "blur(30px)",
@@ -49,85 +54,60 @@ const StyledButton = styled(Button)(({ theme }) => ({
   fontWeight: "bold",
   textTransform: "none",
   fontSize: "1.1rem",
-  background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+  // background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
+  backgroundColor:"#C7253E",
   boxShadow: "0 4px 15px rgba(37, 117, 252, 0.2)",
   transition: "all 0.3s ease",
   color: "#fff",
   "&:hover": {
-    background: "linear-gradient(135deg, #2575fc 0%, #6a11cb 100%)",
+    // background: "linear-gradient(135deg, #2575fc 0%, #6a11cb 100%)",
     transform: "translateY(-2px)",
     boxShadow: "0 6px 20px rgba(37, 117, 252, 0.3)",
   },
 }));
 
-const FormTitle = styled(Typography)(({ theme }) => ({
-  marginBottom: theme.spacing(5),
-  color: "#333",
-  fontWeight: 800,
+const HeaderSection = styled("div")(({ theme }) => ({
+  backgroundColor: "#fff",
+  padding: theme.spacing(4),
+  borderRadius: "12px",
   textAlign: "center",
-  letterSpacing: "2px",
-  fontSize: "2.5rem",
-  textShadow: "2px 2px 4px rgba(0, 0, 0, 0.1)",
+  boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
+  marginBottom: theme.spacing(4),
+  marginTop: "110px"
 }));
 
-const StyledFormControl = styled(FormControl)(() => ({
-  "& .MuiOutlinedInput-root": {
-    borderRadius: "12px",
-    transition: "all 0.3s ease",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    "&:hover": {
-      boxShadow: "0 0 0 2px rgba(37, 117, 252, 0.2)",
-    },
-    "&.Mui-focused": {
-      boxShadow: "0 0 0 3px rgba(37, 117, 252, 0.3)",
-    },
-  },
-  "& .MuiInputLabel-root": {
-    color: "#6a11cb",
-    fontWeight: 600,
-  },
-}));
-
-const StyledTextField = styled(TextField)(() => ({
-  "& .MuiOutlinedInput-root": {
-    borderRadius: "12px",
-    transition: "all 0.3s ease",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    "&:hover": {
-      boxShadow: "0 0 0 2px rgba(37, 117, 252, 0.2)",
-    },
-    "&.Mui-focused": {
-      boxShadow: "0 0 0 3px rgba(37, 117, 252, 0.3)",
-    },
-  },
-  "& .MuiInputLabel-root": {
-    color: "#6a11cb",
-    fontWeight: 600,
-  },
-}));
-
-const ImageUploadButton = styled(Button)(() => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  height: "150px",
-  borderRadius: "16px",
-  border: "3px dashed #6a11cb",
-  backgroundColor: "rgba(255, 255, 255, 0.9)",
-  color: "#6a11cb",
-  transition: "all 0.3s ease",
+const HeaderText = styled(Typography)(({ theme }) => ({
+  color: "#001F3F",
+  fontSize: "2rem",
   fontWeight: "bold",
-  fontSize: "1.1rem",
-  "&:hover": {
-    backgroundColor: "rgba(106, 17, 203, 0.1)",
-    transform: "scale(1.02)",
-  },
+  marginBottom: theme.spacing(2),
+}));
+
+const StepSection = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: "2rem",
+  textAlign: "center",
+  padding: theme.spacing(2),
+}));
+
+const Step = styled("div")(() => ({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  margin: "0 2rem",
 }));
 
 const PostAd = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isEditMode = !!location.state?.adData;
+
   const [formData, setFormData] = useState({
     city: "",
     carInfo: "",
+    year: "",
     registeredIn: "Un-Registered",
     exteriorColor: "",
     mileage: "",
@@ -137,20 +117,74 @@ const PostAd = () => {
     images: [],
   });
 
-  const [errors, setErrors] = useState({});
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
 
+  useEffect(() => {
+    if (isEditMode) {
+      const adData = location.state.adData;
+      setFormData({
+        city: adData.city,
+        carInfo: adData.carInfo,
+        year: adData.year,
+        registeredIn: adData.registeredIn,
+        exteriorColor: adData.exteriorColor,
+        mileage: adData.mileage,
+        price: adData.price,
+        adDescription: adData.adDescription,
+        mobileNumber: adData.mobileNumber,
+        images: adData.images,
+      });
+    }
+  }, [isEditMode, location.state]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
+
+    if (name === "mileage" && value < 0) {
+      setSnackbar({
+        open: true,
+        message: "Mileage cannot be negative.",
+        severity: "error",
+      });
+      return;
+    }
+
+    if (name === "price" && value < 0) {
+      setSnackbar({
+        open: true,
+        message: "Price cannot be negative.",
+        severity: "error",
+      });
+      return;
+    }
+
+    if (name === "mobileNumber") {
+      if (isNaN(value)) {
+        setSnackbar({
+          open: true,
+          message: "Mobile number must only contain numbers.",
+          severity: "error",
+        });
+        return;
+      }
+      if (value.length > 11) {
+        setSnackbar({
+          open: true,
+          message: "Mobile number cannot be more than 11 digits.",
+          severity: "error",
+        });
+        return;
+      }
+    }
+
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
     }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleImageChange = (e) => {
@@ -161,20 +195,17 @@ const PostAd = () => {
     }));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    Object.keys(formData).forEach((key) => {
-      if (key !== "images" && !formData[key]) {
-        newErrors[key] = "This field is required";
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+
+    if (formData.mobileNumber.length !== 11) {
+      setSnackbar({
+        open: true,
+        message: "Mobile number must be exactly 11 digits.",
+        severity: "error",
+      });
+      return;
+    }
 
     try {
       const formDataToSend = new FormData();
@@ -188,252 +219,252 @@ const PostAd = () => {
         }
       }
 
-      const response = await axios.post(
-        "http://localhost:3001/postAd",
-        formDataToSend,
-        {
+      if (isEditMode) {
+        await axios.put(
+          `http://localhost:3001/carAds/${location.state.adData._id}`,
+          formData,
+          {
+            withCredentials: true,
+          }
+        );
+        setSnackbar({
+          open: true,
+          message: "Ad updated successfully!",
+          severity: "success",
+        });
+      } else {
+        await axios.post("http://localhost:3001/postAd", formDataToSend, {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
-        }
-      );
-      console.log(response.data);
-      setSnackbar({
-        open: true,
-        message: "Ad posted successfully!",
-        severity: "success",
-      });
+        });
+        setSnackbar({
+          open: true,
+          message: "Ad posted successfully!",
+          severity: "success",
+        });
+      }
+
+      navigate("/my-ads");
     } catch (error) {
-      console.error("Error posting ad:", error);
+      console.error("Error posting/updating ad:", error);
       setSnackbar({
         open: true,
-        message: "Error posting ad. Please try again.",
+        message: "Error posting/updating ad. Please try again.",
         severity: "error",
       });
     }
   };
 
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
+  const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
   return (
-    <StyledCard>
-      <CardContent>
-        <FormTitle variant="h4" component="h1">
-          Post Your Car Ad
-        </FormTitle>
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} sm={6}>
-              <StyledFormControl fullWidth error={!!errors.city}>
-                <InputLabel>City</InputLabel>
-                <Select
-                  name="city"
-                  value={formData.city}
+    <>
+    <Navbar/>
+      <HeaderSection>
+        <HeaderText>Sell your Car With 3 Easy & Simple Steps!</HeaderText>
+        <StepSection>
+          <Step>
+            <img src={iconStep1} alt="Step 1" style={{ width: "60px" }} />
+            <Typography variant="h6">Enter Your Car Information</Typography>
+          </Step>
+          <Step>
+            <img src={iconStep2} alt="Step 2" style={{ width: "60px" }} />
+            <Typography variant="h6">Upload Photos</Typography>
+          </Step>
+          <Step>
+            <img src={iconStep3} alt="Step 3" style={{ width: "60px" }} />
+            <Typography variant="h6">Enter Your Selling Price</Typography>
+          </Step>
+        </StepSection>
+      </HeaderSection>
+
+      {/* Card and Form Section */}
+      <StyledCard>
+        <CardContent>
+          <Typography variant="h4" component="h1" align="center" gutterBottom>
+            {isEditMode ? "Edit Your Ad" : "Car Information"}
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>City</InputLabel>
+                  <Select
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="Lahore">Lahore</MenuItem>
+                    <MenuItem value="Karachi">Karachi</MenuItem>
+                    <MenuItem value="Islamabad">Islamabad</MenuItem>
+                    <MenuItem value="Rawalpindi">Rawalpindi</MenuItem>
+                    <MenuItem value="Badin">Badin</MenuItem>
+                    <MenuItem value="Larkana">Larkana</MenuItem>
+                    <MenuItem value="Sukkur">Sukkur</MenuItem>
+                    <MenuItem value="Hyderabad">Hyderabad</MenuItem>
+                    <MenuItem value="Gujranwala">Gujranwala</MenuItem>
+                    <MenuItem value="Swat">Swat</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="carInfo"
+                  label="Car Info"
+                  value={formData.carInfo}
                   onChange={handleChange}
+                  fullWidth
                   required
-                  startAdornment={
-                    <MapPin
-                      size={22}
-                      style={{ marginRight: 8, color: "#6a11cb" }}
-                    />
-                  }
-                >
-                  <MenuItem value="Lahore">Lahore</MenuItem>
-                  <MenuItem value="Karachi">Karachi</MenuItem>
-                  <MenuItem value="Islamabad">Islamabad</MenuItem>
-                </Select>
-                {errors.city && (
-                  <Typography color="error">{errors.city}</Typography>
-                )}
-              </StyledFormControl>
-            </Grid>
+                />
+              </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <StyledTextField
-                fullWidth
-                name="carInfo"
-                label="Car Info (Make/Model/Version)"
-                value={formData.carInfo}
-                onChange={handleChange}
-                required
-                error={!!errors.carInfo}
-                helperText={errors.carInfo}
-                InputProps={{
-                  startAdornment: (
-                    <Car
-                      size={22}
-                      style={{ marginRight: 8, color: "#6a11cb" }}
-                    />
-                  ),
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <StyledFormControl fullWidth error={!!errors.registeredIn}>
-                <InputLabel>Registered In</InputLabel>
-                <Select
-                  name="registeredIn"
-                  value={formData.registeredIn}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="year"
+                  label="Car Year"
+                  value={formData.year}
                   onChange={handleChange}
+                  fullWidth
                   required
-                >
-                  <MenuItem value="Un-Registered">Un-Registered</MenuItem>
-                  <MenuItem value="Registered">Registered</MenuItem>
-                </Select>
-                {errors.registeredIn && (
-                  <Typography color="error">{errors.registeredIn}</Typography>
-                )}
-              </StyledFormControl>
-            </Grid>
+                />
+              </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <StyledFormControl fullWidth error={!!errors.exteriorColor}>
-                <InputLabel>Exterior Color</InputLabel>
-                <Select
-                  name="exteriorColor"
-                  value={formData.exteriorColor}
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Registered In</InputLabel>
+                  <Select
+                    name="registeredIn"
+                    value={formData.registeredIn}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="Un-Registered">Un-Registered</MenuItem>
+                    <MenuItem value="Registered">Registered</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Exterior Color</InputLabel>
+                  <Select
+                    name="exteriorColor"
+                    value={formData.exteriorColor}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="White">White</MenuItem>
+                    <MenuItem value="Black">Black</MenuItem>
+                    <MenuItem value="Silver">Silver</MenuItem>
+                    <MenuItem value="Red">Red</MenuItem>
+                    <MenuItem value="Blue">Blue</MenuItem>
+                    <MenuItem value="Strong Blue Metelic">
+                      Strong Blue Metelic
+                    </MenuItem>
+                    <MenuItem value="Burgundy">Burgundy</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="mileage"
+                  label="Mileage"
+                  type="number"
+                  value={formData.mileage}
                   onChange={handleChange}
+                  fullWidth
                   required
-                >
-                  <MenuItem value="White">White</MenuItem>
-                  <MenuItem value="Black">Black</MenuItem>
-                  <MenuItem value="Silver">Silver</MenuItem>
-                  <MenuItem value="Red">Red</MenuItem>
-                </Select>
-                {errors.exteriorColor && (
-                  <Typography color="error">{errors.exteriorColor}</Typography>
-                )}
-              </StyledFormControl>
-            </Grid>
+                />
+              </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <StyledTextField
-                fullWidth
-                name="mileage"
-                label="Mileage (km)"
-                type="positive number"
-                value={formData.mileage}
-                onChange={handleChange}
-                required
-                error={!!errors.mileage}
-                helperText={errors.mileage}
-                InputProps={{
-                  startAdornment: (
-                    <Gauge
-                      size={22}
-                      style={{ marginRight: 8, color: "#6a11cb" }}
-                    />
-                  ),
-                }}
-              />
-            </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="price"
+                  label="Price (PKR)"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <StyledTextField
-                fullWidth
-                name="price"
-                label="Price (PKR)"
-                type="positive number"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                error={!!errors.price}
-                helperText={errors.price}
-              />
-            </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="adDescription"
+                  label="Ad Description"
+                  multiline
+                  rows={4}
+                  value={formData.adDescription}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
 
-            <Grid item xs={12}>
-              <StyledTextField
-                fullWidth
-                name="adDescription"
-                label="Ad Description"
-                multiline
-                rows={4}
-                value={formData.adDescription}
-                onChange={handleChange}
-                required
-                error={!!errors.adDescription}
-                helperText={errors.adDescription}
-              />
-            </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="mobileNumber"
+                  label="Mobile Number"
+                  value={formData.mobileNumber}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
 
-            <Grid item xs={12}>
-              <StyledTextField
-                fullWidth
-                name="mobileNumber"
-                label="Mobile Number"
-                value={formData.mobileNumber}
-                onChange={handleChange}
-                required
-                error={!!errors.mobileNumber}
-                helperText={errors.mobileNumber}
-              />
-            </Grid>
+              <Grid item xs={12}>
+                <input
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  id="image-upload"
+                  multiple
+                  type="file"
+                  onChange={handleImageChange}
+                />
+                <label htmlFor="image-upload">
+                  <Button
+                    component="span"
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<Camera />}
+                  >
+                    Upload Images (Max 3)
+                  </Button>
+                </label>
+                <Typography align="center">
+                  {formData.images.length} image(s) selected
+                </Typography>
+              </Grid>
 
-            <Grid item xs={12}>
-              <input
-                accept="image/*"
-                style={{ display: "none" }}
-                id="image-upload"
-                multiple
-                type="file"
-                onChange={handleImageChange}
-              />
-              <label htmlFor="image-upload">
-                <ImageUploadButton component="span" fullWidth>
-                  <Camera size={28} style={{ marginRight: 12 }} />
-                  Upload Images (Max 3)
-                </ImageUploadButton>
-              </label>
-              <Typography
-                variant="body2"
-                color="textSecondary"
-                align="center"
-                style={{ marginTop: 8 }}
-              >
-                {formData.images.length} image(s) selected
-              </Typography>
+              <Grid item xs={12}>
+                <StyledButton type="submit" fullWidth variant="contained">
+                  {isEditMode ? "Update Ad" : "Submit Ad"}
+                </StyledButton>
+              </Grid>
             </Grid>
+          </form>
+        </CardContent>
 
-            <Grid item xs={12}>
-              <StyledButton
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-              >
-                Submit Ad
-              </StyledButton>
-            </Grid>
-          </Grid>
-        </form>
-      </CardContent>
-      <Snackbar
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        message={snackbar.message}
-        action={
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={handleCloseSnackbar}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        }
-      />
-    </StyledCard>
+        <Snackbar
+          open={snackbar.open}
+          message={snackbar.message}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          action={
+            <IconButton
+              size="small"
+              color="inherit"
+              onClick={handleCloseSnackbar}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+      </StyledCard>
+    </>
   );
 };
 

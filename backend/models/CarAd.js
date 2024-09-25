@@ -1,19 +1,25 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const CarAdSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required: true }, // Reference to the user
-  city: String,
-  carInfo: String,
-  registeredIn: String,
-  exteriorColor: String,
-  mileage: String,
-  price: Number,
-  adDescription: String,
-  mobileNumber: String,
-  images: [String],
-}, { timestamps: true });
+const CarAdSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Profile",
+      required: true,
+    },
+    city: String,
+    carInfo: String,
+    year: { type: Number, required: true },
+    registeredIn: String,
+    exteriorColor: String,
+    mileage: String,
+    price: Number,
+    adDescription: String,
+    mobileNumber: String,
+    images: [String],
+  },
+  { timestamps: true }
+);
 
-const CarAdModel = mongoose.model('CarAd', CarAdSchema);
+const CarAdModel = mongoose.model("CarAd", CarAdSchema);
 module.exports = CarAdModel;
-
-

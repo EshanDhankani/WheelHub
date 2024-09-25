@@ -8,7 +8,8 @@ import PostAd from "./src/components/PostAd";
 import CarDetailScreen from "./src/components/CarDetailScreen";
 import MyProfile from "./src/components/MyProfile";
 import MyAds from './src/components/MyAds';
-import EditCarDetails from './src/components/EditCarDetails'; // Import EditCarDetails component
+import AccessoryAd from "./src/components/AccessoryAd";
+
 
 function App() {
   return (
@@ -23,7 +24,9 @@ function App() {
         <Route path="/car/:id" element={<CarDetailScreen />} />
         <Route path="/profile" element={<MyProfile />} />
         <Route path="/my-ads" element={<MyAds />} />
-        <Route path="/edit-car/:id" element={<EditCarDetails />} /> {/* Add EditCarDetails route */}
+        <Route path="/edit-car/:id" element={<PostAd />} />
+        <Route path="/AccessoryAd" element={<AccessoryAd />} />
+
       </Routes>
     </BrowserRouter>
   );

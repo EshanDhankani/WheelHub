@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
@@ -15,6 +15,7 @@ import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import DialogContent from "@mui/material/DialogContent";
+import Menu from "@mui/material/Menu";
 import Slider from "react-slick";
 import GoogleIcon from "@mui/icons-material/Google";
 import "slick-carousel/slick/slick.css";
@@ -31,7 +32,9 @@ const logoStyle = {
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [showLoginPopup, setShowLoginPopup] = useState(false); // For login pop-up
+  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -54,10 +57,12 @@ const Navbar = () => {
         });
         if (response.ok) {
           const userData = await response.json();
-          setUser(userData); // Set user data
+          setUser(userData);
         }
+        setIsCheckingLogin(false);
       } catch (error) {
         console.error("Error fetching user:", error);
+        setIsCheckingLogin(false);
       }
     };
 
@@ -77,12 +82,26 @@ const Navbar = () => {
     }
   };
 
-  const handlePostAdClick = () => {
+  const handlePostAdClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseDropdown = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuItemClick = (path) => {
     if (!user) {
       setShowLoginPopup(true);
     } else {
-      navigate("/postAd");
+      navigate(path);
     }
+    setAnchorEl(null);
+  };
+
+  const handleGoogleLogin = () => {
+    window.localStorage.setItem("redirectAfterLogin", "/PostAd");
+    window.open("http://localhost:3001/auth/google", "_self");
   };
 
   const handleClosePopup = () => {
@@ -100,56 +119,37 @@ const Navbar = () => {
     arrows: false,
   };
 
-  const handleGoogleLogin = () => {
-    window.open("http://localhost:3001/auth/google", "_self"); // Ensure this is the correct backend route
-  };
+  if (isCheckingLogin) {
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <Typography variant="h6">Loading...</Typography>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <AppBar
-        position="fixed"
-        sx={{
-          boxShadow: 0,
-          bgcolor: "transparent",
-          backgroundImage: "none",
-          mt: 2,
-        }}
-      >
+      <AppBar position="fixed" sx={{ boxShadow: 0, bgcolor: "transparent", mt: 2 }}>
         <Container maxWidth="lg">
           <Toolbar
             variant="regular"
-            sx={(theme) => ({
+            sx={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               flexShrink: 0,
               borderRadius: "999px",
               bgcolor: "black",
-              backdropFilter: "blur(24px)",
               maxHeight: 40,
               borderColor: "divider",
-              boxShadow:
-                theme.palette.mode === "light"
-                  ? `0 0 1px rgba(85, 166, 246, 0.1), 1px 1.5px 2px -1px rgba(85, 166, 246, 0.15), 4px 4px 12px -2.5px rgba(85, 166, 246, 0.15)`
-                  : "0 0 1px rgba(2, 31, 59, 0.7), 1px 1.5px 2px -1px rgba(2, 31, 59, 0.65), 4px 4px 12px -2.5px rgba(2, 31, 59, 0.65)",
-            })}
+              boxShadow: "0 0 1px rgba(85, 166, 246, 0.1)",
+            }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               <img src={"/logo1.png"} style={logoStyle} alt="Logo" />
             </Box>
 
-            <Box
-              sx={{
-                display: { xs: "none", md: "flex" },
-                justifyContent: "center",
-                flexGrow: 1,
-              }}
-            >
+            <Box sx={{ display: { xs: "none", md: "flex" }, justifyContent: "center", flexGrow: 1 }}>
               {menuItems.map((item) => (
                 <MenuItem
                   key={item.text}
@@ -158,50 +158,23 @@ const Navbar = () => {
                   sx={{
                     py: "6px",
                     px: "12px",
-                    borderBottom:
-                      location.pathname === item.path
-                        ? "2px solid #fff"
-                        : "none",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
+                    borderBottom: location.pathname === item.path ? "2px solid #fff" : "none",
+                    "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "600", color: "white" }}
-                  >
+                  <Typography variant="body2" sx={{ fontWeight: "600", color: "white" }}>
                     {item.text}
                   </Typography>
                 </MenuItem>
               ))}
-              <MenuItem
-                key="Post an Ad"
-                onClick={handlePostAdClick}
-                sx={{
-                  py: "6px",
-                  px: "12px",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: "600", color: "white" }}
-                >
+              <MenuItem onClick={handlePostAdClick} sx={{ py: "6px", px: "12px", "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" } }}>
+                <Typography variant="body2" sx={{ fontWeight: "600", color: "white" }}>
                   Post an Ad
                 </Typography>
               </MenuItem>
             </Box>
 
-            <Box
-              sx={{
-                display: { xs: "none", md: "flex" },
-                gap: 0.5,
-                alignItems: "center",
-              }}
-            >
+            <Box sx={{ display: { xs: "none", md: "flex" }, gap: 0.5, alignItems: "center" }}>
               {user ? (
                 <ProfileMenu user={user} onLogout={handleLogout} />
               ) : (
@@ -211,12 +184,7 @@ const Navbar = () => {
                   size="small"
                   component={Link}
                   to="/login"
-                  sx={{
-                    fontWeight: "600",
-                    backgroundColor: "#030947",
-                    textTransform: "none",
-                    borderRadius: 15,
-                  }}
+                  sx={{ fontWeight: "600", backgroundColor: "#C7253E", textTransform: "none", borderRadius: 15 }}
                 >
                   Login
                 </Button>
@@ -224,59 +192,24 @@ const Navbar = () => {
             </Box>
 
             <Box sx={{ display: { sm: "", md: "none" } }}>
-              <Button
-                variant="text"
-                color="primary"
-                aria-label="menu"
-                onClick={toggleDrawer(true)}
-                sx={{ minWidth: "30px", p: "4px" }}
-              >
+              <Button variant="text" color="primary" aria-label="menu" onClick={toggleDrawer(true)} sx={{ minWidth: "30px", p: "4px" }}>
                 <MenuIcon />
               </Button>
               <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
-                <Box
-                  sx={{
-                    minWidth: "60dvw",
-                    p: 2,
-                    backgroundColor: "background.paper",
-                    flexGrow: 1,
-                  }}
-                >
+                <Box sx={{ minWidth: "60dvw", p: 2, backgroundColor: "background.paper", flexGrow: 1 }}>
                   {menuItems.map((item) => (
-                    <MenuItem
-                      key={item.text}
-                      component={Link}
-                      to={item.path}
-                      onClick={toggleDrawer(false)}
-                      sx={{
-                        py: 1,
-                        "&:hover": {
-                          backgroundColor: "rgba(255, 255, 255, 0.1)",
-                        },
-                      }}
-                    >
+                    <MenuItem key={item.text} component={Link} to={item.path} onClick={toggleDrawer(false)} sx={{ py: 1, "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" } }}>
                       {item.text}
                     </MenuItem>
                   ))}
                   <Divider />
                   <MenuItem>
                     {user ? (
-                      <Button
-                        color="primary"
-                        variant="contained"
-                        sx={{ width: "100%" }}
-                        onClick={handleLogout}
-                      >
+                      <Button color="primary" variant="contained" sx={{ width: "100%" }} onClick={handleLogout}>
                         Logout
                       </Button>
                     ) : (
-                      <Button
-                        color="primary"
-                        variant="contained"
-                        component={Link}
-                        to="/login"
-                        sx={{ width: "100%" }}
-                      >
+                      <Button color="primary" variant="contained" component={Link} to="/login" sx={{ width: "100%" }}>
                         Login
                       </Button>
                     )}
@@ -288,6 +221,13 @@ const Navbar = () => {
         </Container>
       </AppBar>
 
+      {/* Dropdown for Post an Ad */}
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseDropdown}>
+        <MenuItem onClick={() => handleMenuItemClick("/PostAd")}>Sell Your Car</MenuItem>
+        <MenuItem onClick={() => handleMenuItemClick("/AccessoryAd")}>Sell Your Accessory</MenuItem>
+      </Menu>
+
+      {/* Login Popup with Carousel */}
       <Dialog open={showLoginPopup} onClose={handleClosePopup}>
         <IconButton
           aria-label="close"
@@ -302,14 +242,13 @@ const Navbar = () => {
           <CloseIcon />
         </IconButton>
         <DialogContent>
-          <Box textAlign="center" sx={{ maxWidth: 400 }}>
-          
+        <Box textAlign="center" sx={{ maxWidth: 400 }}>
             <Slider {...sliderSettings}>
               <div>
                 <img
                   src="/assets/1.jpg"
                   alt="Slide 1"
-                  style={{ width: "100%", maxWidth: "200px", margin: "auto" }} // Center and resize
+                  style={{ width: "80%", maxWidth: "150px", margin: "auto" }}
                 />
                 <Typography variant="body1">Save Your Favourite Ads</Typography>
               </div>
@@ -317,17 +256,15 @@ const Navbar = () => {
                 <img
                   src="/assets/2.jpg"
                   alt="Slide 2"
-                  style={{ width: "100%", maxWidth: "200px", margin: "auto" }} // Center and resize
+                  style={{ width: "80%", maxWidth: "150px", margin: "auto" }}
                 />
-                <Typography variant="body1">
-                  Safely Connect With Buyers
-                </Typography>
+                <Typography variant="body1">Safely Connect With Buyers</Typography>
               </div>
               <div>
                 <img
                   src="/assets/3.jpg"
                   alt="Slide 3"
-                  style={{ width: "100%", maxWidth: "200px", margin: "auto" }} // Center and resize
+                  style={{ width: "80%", maxWidth: "150px", margin: "auto" }}
                 />
                 <Typography variant="body1">Create Quick Alerts</Typography>
               </div>
@@ -335,11 +272,7 @@ const Navbar = () => {
 
             <Typography variant="h6" component="div" gutterBottom></Typography>
 
-            <Typography
-              variant="body2"
-              color="textSecondary"
-              gutterBottom
-            ></Typography>
+            <Typography variant="body2" color="textSecondary" gutterBottom></Typography>
 
             <Button
               startIcon={<GoogleIcon />}
@@ -348,7 +281,7 @@ const Navbar = () => {
               sx={{
                 textTransform: "none",
                 mb: 1,
-                mt: 3, 
+                mt: 3,
               }}
               onClick={handleGoogleLogin}
             >

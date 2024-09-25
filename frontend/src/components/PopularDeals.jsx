@@ -43,18 +43,6 @@ const Header = styled(Typography)({
   marginBottom: '2rem',
 });
 
-
- export const cars = [
-  { id:1, make: 'Toyota', model: 'Vitz 2020',  price: 'PKR 6,200,000', location: 'Lahore', image: 'https://cache1.pakwheels.com/ad_pictures/1051/toyota-vitz-hybrid-f-1-5-2020-105109960.webp' },
-  { id:2, make: 'Honda',  model: 'Civic 2022', price: 'PKR 79.5 Lacs', location: 'Karachi', image: 'https://cache4.pakwheels.com/ad_pictures/1045/honda-civic-oriel-2022-104549739.webp' },
-  { id:3, make: 'Toyota', model: 'Yaris 2022', price: 'PKR 46.5 Lacs', location: 'Islamabad', image: 'https://cache2.pakwheels.com/ad_pictures/1056/toyota-yaris-ativ-x-cvt-1-5-2022-105681365.webp' },
-  { id:4, make: 'Honda',  model: 'City 2018',  price: 'PKR 39.5 Lacs', location: 'Peshawar KPK', image: 'https://cache4.pakwheels.com/ad_pictures/1034/honda-city-aspire-prosmatec-2018-103461075.webp' },
-  { id:5, make: 'Honda',  model: 'Jade 2015',  price: 'PKR 44 Lacs', location: 'Islamabad', image: 'https://cache3.pakwheels.com/ad_pictures/1038/honda-jade-hybrid-hybrid-x-2-2015-103888710.webp' },
-  { id:6, make: 'Audi',   model: 'Audi e-tron GT 2022',  price: 'PKR 3.98 crore', location: 'Islamabad', image: 'https://cache1.pakwheels.com/ad_pictures/1018/audi-e-tron-gt-standard-8-2022-101882345.webp' },
-  { id:7, make: 'Mercedes',model: 'Mercedes Benz E 2014', price: 'PKR 1.21 crore', location: 'Faisalabad', image: 'https://cache4.pakwheels.com/ad_pictures/1043/mercedes-benz-e-class-e-250-2014-104344092.webp' },
-  { id:8, make: 'Changan', model: 'Changan Alsvin',price: 'PKR 44 Lacs', location: 'Rawalpindi', image: 'https://cache2.pakwheels.com/ad_pictures/1022/changan-alsvin-1-5l-dct-lumiere-2023-102220298.webp' },
-];
-
 const PopularDeals = ({ cars }) => {
   const [tabValue, setTabValue] = React.useState(0);
 

@@ -1,19 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import {
-  Card,
-  CardContent,
-  CardMedia,
   Typography,
   Grid,
   Container,
   Box,
   CircularProgress,
-  Chip,
   Paper,
-  IconButton,
-  Divider,
   Select,
   MenuItem,
   FormControl,
@@ -23,22 +18,26 @@ import {
   ThemeProvider,
   createTheme,
   Autocomplete,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
 } from "@mui/material";
-import { MapPin, Car, Gauge, Search, MessageCircle } from "lucide-react";
+import { MapPin, Calendar, Gauge, Search } from "lucide-react";
+
 import Navbar from "./Navbar";
 
-// Custom theme for enhanced visual style
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#1976d2", 
+      main: "#1976d2",
     },
     secondary: {
-      main: "#f50057", 
+      main: "#f50057",
     },
   },
   typography: {
-    fontFamily: "'Poppins', 'Roboto', sans-serif", 
+    fontFamily: "'Poppins', 'Roboto', sans-serif",
     h3: {
       fontWeight: 700,
       color: "#030947",
@@ -87,6 +86,93 @@ const theme = createTheme({
     },
   },
 });
+
+const CarCard = ({ ad, onClick }) => {
+  return (
+    <Card
+      onClick={onClick}
+      sx={{
+        cursor: "pointer",
+        borderRadius: 1,
+        height: "370px",
+
+        overflow: "hidden",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+        transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+        "&:hover": {
+          transform: "translateY(-5px)",
+
+          boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+          border: "1px solid black",
+        },
+      }}
+    >
+      <Box sx={{ position: "relative" }}>
+        <CardMedia
+          component="img"
+          height="250"
+          image={`http://localhost:3001/${ad.images[0]}`}
+          alt={ad.carInfo}
+        />
+        <Chip
+          label={`PKR ${ad.price.toLocaleString()}`}
+          sx={{
+            position: "absolute",
+            bottom: -14,
+            left: 189,
+            backgroundColor: "#C7253E",
+            color: "#fff",
+            fontWeight: "bold",
+            fontSize: "1rem",
+            padding: "4px 8px",
+            borderRadius: "78px",
+          }}
+        />
+      </Box>
+      <CardContent sx={{ padding: 4 }}>
+        <Typography variant="h6" component="h2" gutterBottom fontWeight="bold">
+          {ad.carInfo}
+        </Typography>
+
+        <Box display="flex" justifyContent="space-between" mt={2}>
+          <Box display="flex" alignItems="center">
+            <Calendar size={18} color="#666" />
+            <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+              {ad.year}
+            </Typography>
+          </Box>
+
+          <Box display="flex" alignItems="center">
+            <Gauge size={18} color="#666" />
+            <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+              {ad.mileage} km
+            </Typography>
+          </Box>
+          <Box display="flex" alignItems="center">
+            <MapPin size={18} color="#666" />
+            <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+              {ad.city}
+            </Typography>
+          </Box>
+          <Box></Box>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
+
+CarCard.propTypes = {
+  ad: PropTypes.shape({
+    images: PropTypes.arrayOf(PropTypes.string).isRequired,
+    carInfo: PropTypes.string.isRequired,
+    carYear: PropTypes.number.isRequired,
+    price: PropTypes.number.isRequired,
+    city: PropTypes.string.isRequired,
+    year: PropTypes.number.isRequired,
+    mileage: PropTypes.number.isRequired,
+  }).isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 
 const UsedCars = () => {
   const [carAds, setCarAds] = useState([]);
@@ -181,7 +267,6 @@ const UsedCars = () => {
     );
   };
 
-  // Get unique make and models for autocomplete
   const makeModelOptions = [
     ...new Set(carAds.map((ad) => ad.carInfo.toLowerCase())),
   ];
@@ -303,7 +388,11 @@ const UsedCars = () => {
                 color="primary"
                 startIcon={<Search />}
                 onClick={handleSearch}
-                sx={{ height: "56px", fontWeight: "bold" }}
+                sx={{
+                  height: "56px",
+                  fontWeight: "bold",
+                  backgroundColor: "#C7253E",
+                }}
               >
                 Search
               </Button>
@@ -314,68 +403,7 @@ const UsedCars = () => {
         <Grid container spacing={4}>
           {filteredCarAds.map((ad) => (
             <Grid item key={ad._id} xs={12} sm={6} md={4}>
-              <Card
-                onClick={() => handleCarClick(ad._id)}
-                sx={{ cursor: "pointer" }}
-              >
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={`http://localhost:3001/${ad.images[0]}`}
-                  alt={ad.carInfo}
-                />
-                <CardContent>
-                  <Typography variant="h5" component="h2" gutterBottom>
-                    {ad.carInfo}
-                  </Typography>
-                  <Box display="flex" alignItems="center" mb={1}>
-                    <MapPin size={18} color="#666" />
-                    <Typography variant="body1" sx={{ ml: 1 }}>
-                      {ad.city}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" alignItems="center" mb={2}>
-                    <Car size={18} color="#666" />
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      sx={{ ml: 1 }}
-                    >
-                      {ad.year}
-                    </Typography>
-                    <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-                    <Gauge size={18} color="#666" />
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      sx={{ ml: 1 }}
-                    >
-                      {ad.kms} km
-                    </Typography>
-                  </Box>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Chip
-                      label={`PKR ${ad.price.toLocaleString()}`}
-                      color="primary"
-                      size="medium"
-                      sx={{
-                        backgroundColor: "#f50057",
-                        color: "#fff",
-                        fontSize: "1rem",
-                        fontWeight: "bold",
-                        padding: "10px",
-                      }}
-                    />
-                    <IconButton color="primary" aria-label="contact seller">
-                      <MessageCircle />
-                    </IconButton>
-                  </Box>
-                </CardContent>
-              </Card>
+              <CarCard ad={ad} onClick={() => handleCarClick(ad._id)} />
             </Grid>
           ))}
         </Grid>
