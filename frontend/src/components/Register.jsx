@@ -58,9 +58,7 @@ const Register = () => {
     event.preventDefault();
     let validationErrors = {};
 
-    // const alphabeticRegex = /^[A-Za-z]+$/;
     const alphabeticRegex = /^[A-Za-zÀ-ÖØ-öø-ÿ\s'-]+$/;
-
 
     if (!alphabeticRegex.test(firstName)) {
       validationErrors.firstName = "First name should contain only alphabets.";
@@ -99,33 +97,13 @@ const Register = () => {
         password,
       })
       .then((result) => {
-        if (result.data === "Already registered") {
+        if (result.data.message === "Already registered") {
           toast.warning("E-mail already registered!");
         } else {
-          toast.success("Registered successfully!", {});
-          setTimeout(() => {
-            navigate("/login");
-          }, 2000);
-        }
-        setErrors({});
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("An error occurred. Please try again.");
-      });
-
-    axios
-      .post("http://localhost:3001/register", {
-        firstName,
-        lastName,
-        email,
-        password,
-      })
-      .then((result) => {
-        if (result.data === "Already registered") {
-          toast.warning("E-mail already registered!");
-        } else {
-          toast.success("Registered successfully!", {});
+          toast.success(
+            "Registered successfully! Please check your email to verify your account.",
+            {}
+          );
           setTimeout(() => {
             navigate("/login");
           }, 2000);
@@ -355,7 +333,7 @@ const Register = () => {
             alignItems: "center",
           }}
         >
-          <img src="./assets/logo1.png" alt="Logo" />
+          <img src="./assets/logo2.png" alt="Logo" height={540} />
         </Grid>
       </Grid>
     </div>

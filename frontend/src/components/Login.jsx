@@ -51,12 +51,19 @@ const Login = () => {
                 error.response ? error.response.data : error.message
               );
             });
+        } else if (
+          result.data.message ===
+          "Email not verified. Please verify your email before logging in."
+        ) {
+          // Show a specific error if the email is not verified
+          toast.error("Please verify your email before logging in.");
         } else {
           toast.error("Incorrect credentials! Please try again.");
         }
       })
-      .catch(() => {
+      .catch((error) => {
         toast.error("An error occurred. Please try again.");
+        console.error("Login error:", error);
       });
   };
 
@@ -89,7 +96,7 @@ const Login = () => {
             boxShadow: "inset 0 0 15px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <img src="./assets/logo1.png" alt="Logo" />
+          <img src="./assets/logo2.png" alt="Logo" height={540} />
         </Grid>
 
         <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>

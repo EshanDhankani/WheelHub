@@ -11,7 +11,7 @@ function HomeSection({ imageSrc }) {
         alignItems: "center",
         justifyContent: "space-between",
         padding: 2,
-        backgroundColor: "#000000",
+        background: "linear-gradient(135deg, #030947, #12152E, #1F1F1F)",
         paddingTop: "10%",
         height: "110vh",
         fontFamily: "Poppins, sans-serif",
@@ -65,8 +65,10 @@ function HomeSection({ imageSrc }) {
             <Button
               variant="contained"
               sx={{
-                backgroundColor: "#030947",
-                color: "#fff",
+                backgroundColor: "#C7253E",
+                color: "black",
+                fontWeight:"bold",
+                fontSize:"20px",
                 textTransform: "none",
                 borderRadius: "25px",
               }}
@@ -75,11 +77,12 @@ function HomeSection({ imageSrc }) {
             </Button>
           </Link>
           <Button
-            variant="outlined"
+            variant="contained"
             sx={{
-              backgroundColor: "#000",
-              color: "#fff",
-              borderColor: "#030947",
+              backgroundColor: "#C7253E",
+              color: "black",
+              fontWeight:"bold",
+              fontSize:"20px",
               textTransform: "none",
               borderRadius: "25px",
             }}

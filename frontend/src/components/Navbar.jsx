@@ -24,7 +24,7 @@ import ProfileMenu from "../components/ProfileMenu.jsx";
 
 const logoStyle = {
   width: "auto",
-  height: "50px",
+  height: "70px",
   cursor: "pointer",
   mx: 10,
 };
@@ -44,7 +44,7 @@ const Navbar = () => {
 
   const menuItems = [
     { text: "Used Cars", path: "/UsedCars" },
-    { text: "Auto Store", path: "/auto-store" },
+    { text: "Auto Store", path: "/autoparts" },
     { text: "Mechanics", path: "/mechanics" },
     { text: "Videos", path: "/videos" },
   ];
@@ -146,7 +146,7 @@ const Navbar = () => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <img src={"/logo1.png"} style={logoStyle} alt="Logo" />
+              <img src={"/logo2.png"} style={logoStyle} alt="Logo" />
             </Box>
 
             <Box sx={{ display: { xs: "none", md: "flex" }, justifyContent: "center", flexGrow: 1 }}>

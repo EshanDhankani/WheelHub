@@ -1,40 +1,48 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Typography, Container, Paper, Avatar, Grid } from '@mui/material';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Container,
+  Paper,
+  Avatar,
+  Grid,
+} from "@mui/material";
 
 const MyProfile = () => {
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
   });
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/currentUser', {
+        const response = await axios.get("http://localhost:3001/currentUser", {
           withCredentials: true,
         });
         setUser(response.data);
         setFormData({
-          firstName: response.data.firstName || '',
-          lastName: response.data.lastName || '',
-          email: response.data.email || '',
-          password: '',
+          firstName: response.data.firstName || "",
+          lastName: response.data.lastName || "",
+          email: response.data.email || "",
+          password: "",
         });
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error("Error fetching user:", error);
       }
     };
     fetchUser();
   }, []);
 
- 
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -42,37 +50,34 @@ const MyProfile = () => {
     });
   };
 
-
-const handleUpdate = async () => {
+  const handleUpdate = async () => {
     try {
-      await axios.put('http://localhost:3001/updateProfile', formData, {
+      await axios.put("http://localhost:3001/updateProfile", formData, {
         withCredentials: true,
       });
       setIsEditing(false);
-      alert('Profile updated successfully');
+      alert("Profile updated successfully");
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
     }
   };
-  
+
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete your profile?')) {
+    if (window.confirm("Are you sure you want to delete your profile?")) {
       try {
-        await axios.delete('http://localhost:3001/deleteProfile', {
+        await axios.delete("http://localhost:3001/deleteProfile", {
           withCredentials: true,
         });
-  
-        alert('Profile deleted successfully');
-        
+
+        alert("Profile deleted successfully");
+
         setUser(null);
-        navigate('/'); 
-  
+        navigate("/");
       } catch (error) {
-        console.error('Error deleting profile:', error);
+        console.error("Error deleting profile:", error);
       }
     }
   };
-  
 
   if (!user) {
     return <div>Loading...</div>;
@@ -81,19 +86,13 @@ const handleUpdate = async () => {
   return (
     <Container maxWidth="md">
       <Paper elevation={4} sx={{ p: 4, mt: 6, borderRadius: 2 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{ fontWeight: "bold", textAlign: "center" }}
+        >
           My Profile
         </Typography>
-  
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-          <Avatar sx={{ width: 80, height: 80, mb: 2 }} />
-        </Box>
-
-        <Box sx={{ textAlign: 'center', mb: 2 }}>
-          <Typography color="error">
-            Picture can't be changed for unverified emails. Verify your email first.
-          </Typography>
-        </Box>
 
         <form noValidate autoComplete="off">
           <Grid container spacing={2}>
@@ -144,16 +143,18 @@ const handleUpdate = async () => {
             </Grid>
           </Grid>
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 4 }}>
+          <Box
+            sx={{ display: "flex", justifyContent: "center", gap: 3, mt: 4 }}
+          >
             {isEditing ? (
               <>
                 <Button
                   variant="contained"
                   sx={{
-                    backgroundColor: '#1976d2',
-                    color: '#fff',
-                    textTransform: 'none',
-                    '&:hover': { backgroundColor: '#115293' },
+                    backgroundColor: "#1976d2",
+                    color: "#fff",
+                    textTransform: "none",
+                    "&:hover": { backgroundColor: "#115293" },
                   }}
                   onClick={handleUpdate}
                 >
@@ -162,9 +163,9 @@ const handleUpdate = async () => {
                 <Button
                   variant="outlined"
                   sx={{
-                    borderColor: '#1976d2',
-                    textTransform: 'none',
-                    '&:hover': { borderColor: '#115293' },
+                    borderColor: "#1976d2",
+                    textTransform: "none",
+                    "&:hover": { borderColor: "#115293" },
                   }}
                   onClick={() => setIsEditing(false)}
                 >
@@ -176,10 +177,10 @@ const handleUpdate = async () => {
                 <Button
                   variant="contained"
                   sx={{
-                    backgroundColor: '#1976d2',
-                    color: '#fff',
-                    textTransform: 'none',
-                    '&:hover': { backgroundColor: '#115293' },
+                    backgroundColor: "#1976d2",
+                    color: "#fff",
+                    textTransform: "none",
+                    "&:hover": { backgroundColor: "#115293" },
                   }}
                   onClick={() => setIsEditing(true)}
                 >
@@ -189,9 +190,9 @@ const handleUpdate = async () => {
                   variant="outlined"
                   color="error"
                   sx={{
-                    borderColor: '#d32f2f',
-                    textTransform: 'none',
-                    '&:hover': { borderColor: '#9a0007' },
+                    borderColor: "#d32f2f",
+                    textTransform: "none",
+                    "&:hover": { borderColor: "#9a0007" },
                   }}
                   onClick={handleDelete}
                 >

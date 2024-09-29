@@ -9,6 +9,9 @@ import CarDetailScreen from "./src/components/CarDetailScreen";
 import MyProfile from "./src/components/MyProfile";
 import MyAds from './src/components/MyAds';
 import AccessoryAd from "./src/components/AccessoryAd";
+import Autoparts from "./src/components/Autoparts";
+import AutopartsDetail from "./src/components/AutopartsDetail";
+import EmailVerification from "./src/components/EmailVerification"; 
 
 
 function App() {
@@ -26,6 +29,11 @@ function App() {
         <Route path="/my-ads" element={<MyAds />} />
         <Route path="/edit-car/:id" element={<PostAd />} />
         <Route path="/AccessoryAd" element={<AccessoryAd />} />
+        <Route path="/autoparts" element={<Autoparts/>} />
+        <Route path="/details/:id" element={<AutopartsDetail />} />
+        <Route path="/verify-email" element={<EmailVerification />} /> {/* Add this line */}
+
+
 
       </Routes>
     </BrowserRouter>

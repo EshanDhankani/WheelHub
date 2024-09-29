@@ -1,386 +1,3 @@
-// const express = require("express");
-// const cors = require("cors");
-// const mongoose = require("mongoose");
-// const CarAdModel = require("./models/CarAd");
-// const AccessoryAdModel = require("./models/AccessoryAd");
-// const FormDataModel = require("./models/FormData");
-// const session = require("express-session");
-// const passport = require("passport");
-// const OAuth2Strategy = require("passport-google-oauth2").Strategy;
-// const multer = require("multer");
-// const path = require("path");
-
-// const client_id =
-//   "467364977483-n6ace55lvjoif05bjv4enqbusb91clir.apps.googleusercontent.com";
-// const secret_id = "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";
-// const app = express();
-
-// app.use("/uploads", express.static("uploads"));
-// app.use(express.json());
-// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-
-// mongoose.connect("mongodb://127.0.0.1:27017/WheelHub");
-
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "uploads/");
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, Date.now() + path.extname(file.originalname));
-//   },
-// });
-
-// const upload = multer({ storage: storage });
-
-// app.use(
-//   session({
-//     secret: "1523675367asghjefdAdcav",
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: {
-//       secure: false,
-//       maxAge: 24 * 60 * 60 * 1000,
-//     },
-//   })
-// );
-
-// app.use(passport.initialize());
-// app.use(passport.session());
-
-// app.get("/carAds", async (req, res) => {
-//   try {
-//     const carAds = await CarAdModel.find();
-//     res.json(carAds);
-//   } catch (error) {
-//     res.status(500).json({ message: "Error", error: error.message });
-//   }
-// });
-
-// app.post("/postAd", upload.array("images", 3), async (req, res) => {
-//   if (!req.session.user) {
-//     return res.status(401).json({ message: "Not authenticated" });
-//   }
-
-//   try {
-//     const {
-//       city,
-//       carInfo,
-//       year,
-//       registeredIn,
-//       exteriorColor,
-//       mileage,
-//       price,
-//       adDescription,
-//       mobileNumber,
-//     } = req.body;
-//     const images = req.files.map((file) => file.path);
-
-//     const newAd = new CarAdModel({
-//       userId: req.session.user._id,
-//       city,
-//       carInfo,
-//       year,
-//       registeredIn,
-//       exteriorColor,
-//       mileage,
-//       price,
-//       adDescription,
-//       mobileNumber,
-//       images,
-//     });
-
-//     await newAd.save();
-//     res.status(201).json({ message: "Ad posted successfully", ad: newAd });
-//   } catch (error) {
-//     res.status(500).json({ message: "Error posting ad", error: error.message });
-//   }
-// });
-
-
-
-// app.post("/postAccessoryAd", upload.array("images", 3), async (req, res) => {
-//   if (!req.session.user) {
-//     return res.status(401).json({ message: "Not authenticated" });
-//   }
-
-//   try {
-//     const { city, accessoryInfo, category, condition, price, accessoryDescription, mobileNumber } = req.body;
-//     console.log("Form data:", req.body);
-//     console.log("Uploaded files:", req.files);
-
-//     const images = req.files.map((file) => file.path);
-
-//     const newAccessoryAd = new AccessoryAdModel({
-//       userId: req.session.user._id,
-//       city,
-//       accessoryInfo,
-//       category,
-//       condition,
-//       price,
-//       accessoryDescription,
-//       mobileNumber,
-//       images,
-//     });
-
-//     await newAccessoryAd.save();
-//     res.status(201).json({ message: "Accessory ad posted successfully", ad: newAccessoryAd });
-//   } catch (error) {
-//     console.error("Error posting accessory ad:", error.message);
-//     res.status(500).json({ message: "Error posting accessory ad", error: error.message });
-//   }
-// });
-
-
-// app.get("/myAds", async (req, res) => {
-//   if (!req.session.user) {
-//     return res.status(401).json({ message: "Not authenticated" });
-//   }
-
-//   try {
-//     const userAds = await CarAdModel.find({ userId: req.session.user._id });
-//     if (userAds.length === 0) {
-//       return res.json({ message: "No active ads", ads: [] });
-//     }
-//     res.json({ message: "Success", ads: userAds });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error fetching ads", error: error.message });
-//   }
-// });
-
-// app.post("/register", (req, res) => {
-//   const { email, password, firstName, lastName } = req.body;
-
-//   console.log("Registering user:", { firstName, lastName, email, password });
-
-//   FormDataModel.findOne({ email: email })
-//     .then((user) => {
-//       if (user) {
-//         console.log("User already registered");
-//         res.json("Already registered");
-//       } else {
-//         FormDataModel.create({ email, password, firstName, lastName })
-//           .then((log_reg_form) => {
-//             console.log("User registered successfully:", log_reg_form);
-//             res.json(log_reg_form);
-//           })
-//           .catch((err) => {
-//             console.error("Error registering user:", err);
-//             res
-//               .status(500)
-//               .json({ message: "Error registering user", error: err.message });
-//           });
-//       }
-//     })
-//     .catch((error) => {
-//       console.error("Database error:", error);
-//       res.status(500).json({ message: "Database error", error: error.message });
-//     });
-// });
-
-// app.post("/login", (req, res) => {
-//   const { email, password } = req.body;
-//   FormDataModel.findOne({ email: email }).then((user) => {
-//     if (user) {
-//       if (user.password === password) {
-//         req.session.user = user;
-//         res.json("Success");
-//       } else {
-//         res.json("Wrong password");
-//       }
-//     } else {
-//       res.json("No records found!");
-//     }
-//   });
-// });
-
-// app.post("/logout", (req, res) => {
-//   req.session.destroy((err) => {
-//     if (err) {
-//       return res
-//         .status(500)
-//         .json({ message: "Error logging out", error: err.message });
-//     }
-//     res.clearCookie("connect.sid");
-//     res.json({ message: "Logged out successfully" });
-//   });
-// });
-
-// app.get("/currentUser", (req, res) => {
-//   if (req.session.user) {
-//     res.json(req.session.user);
-//   } else {
-//     res.status(401).json({ message: "Not authenticated" });
-//   }
-// });
-
-// app.put("/updateProfile", async (req, res) => {
-//   if (!req.session.user) {
-//     return res.status(401).json({ message: "Not authenticated" });
-//   }
-
-//   try {
-//     const { firstName, lastName, email, password } = req.body;
-
-//     const updatedUser = await FormDataModel.findByIdAndUpdate(
-//       req.session.user._id,
-//       { firstName, lastName, email, password },
-//       { new: true, runValidators: true }
-//     );
-
-//     req.session.user = updatedUser;
-
-//     res.json({ message: "Profile updated successfully", user: updatedUser });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error updating profile", error: error.message });
-//   }
-// });
-
-// app.delete("/deleteProfile", async (req, res) => {
-//   if (!req.session.user) {
-//     return res.status(401).json({ message: "Not authenticated" });
-//   }
-
-//   try {
-//     await FormDataModel.findByIdAndDelete(req.session.user._id);
-
-//     req.session.destroy((err) => {
-//       if (err) {
-//         return res
-//           .status(500)
-//           .json({ message: "Error logging out", error: err.message });
-//       }
-
-//       res.clearCookie("connect.sid");
-//       res.json({ message: "Profile deleted successfully" });
-//     });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error deleting profile", error: error.message });
-//   }
-// });
-
-// app.get("/carAds/:id", async (req, res) => {
-//   try {
-//     const carAd = await CarAdModel.findById(req.params.id);
-//     if (!carAd) {
-//       return res.status(404).json({ message: "Car ad not found" });
-//     }
-//     res.json(carAd);
-//   } catch (error) {
-//     res.status(500).json({ message: "Error", error: error.message });
-//   }
-// });
-
-// app.put("/carAds/:id", async (req, res) => {
-//   try {
-//     const updatedAd = await CarAdModel.findByIdAndUpdate(
-//       req.params.id,
-//       req.body,
-//       {
-//         new: true,
-//         runValidators: true,
-//       }
-//     );
-//     res.json(updatedAd);
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error updating car ad", error: error.message });
-//   }
-// });
-
-// app.delete("/carAds/:id", async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const deletedAd = await CarAdModel.findByIdAndDelete(id);
-
-//     if (!deletedAd) {
-//       return res.status(404).json({ message: "Car ad not found" });
-//     }
-
-//     res.json({ message: "Ad deleted successfully" });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error deleting car ad", error: error.message });
-//   }
-// });
-
-// passport.use(
-//   new OAuth2Strategy(
-//     {
-//       clientID: client_id,
-//       clientSecret: secret_id,
-//       callbackURL: "http://localhost:3001/auth/google/callback",
-//       scope: ["profile", "email"],
-//     },
-//     async (accessToken, refreshToken, profile, done) => {
-//       try {
-//         let user = await FormDataModel.findOne({ googleId: profile.id });
-
-//         if (!user) {
-//           user = await FormDataModel.findOne({ email: profile.email });
-
-//           if (user) {
-//             user.googleId = profile.id;
-//             await user.save();
-//             console.log("Existing user found by email, updated googleId.");
-//           } else {
-//             const fullName = `${profile.name.givenName} ${profile.name.familyName}`;
-//             user = new FormDataModel({
-//               googleId: profile.id,
-//               name: fullName,
-//               email: profile.email,
-//             });
-//             await user.save();
-//             console.log("New user created with Google login.");
-//           }
-//         }
-
-//         return done(null, user);
-//       } catch (error) {
-//         console.error("Error during Google OAuth:", error);
-//         return done(error, null);
-//       }
-//     }
-//   )
-// );
-
-// passport.serializeUser((user, done) => {
-//   done(null, user);
-// });
-
-// passport.deserializeUser((user, done) => {
-//   done(null, user);
-// });
-
-// app.get(
-//   "/auth/google",
-//   passport.authenticate("google", { scope: ["profile", "email"] })
-// );
-
-// app.get(
-//   "/auth/google/callback",
-//   passport.authenticate("google", {
-//     failureRedirect: "http://localhost:5173/login",
-//   }),
-//   (req, res) => {
-//     req.session.user = req.user;
-//     res.redirect("http://localhost:5173/UsedCars");
-//   }
-// );
-
-// app.listen(3001, () => {
-//   console.log("Server listening on http://127.0.0.1:3001");
-// });
-
-
-
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -392,8 +9,11 @@ const passport = require("passport");
 const OAuth2Strategy = require("passport-google-oauth2").Strategy;
 const multer = require("multer");
 const path = require("path");
+const nodemailer = require("nodemailer"); 
+const crypto = require("crypto"); 
 
-const client_id = "467364977483-n6ace55lvjoif05bjv4enqbusb91clir.apps.googleusercontent.com";
+const client_id =
+  "467364977483-n6ace55lvjoif05bjv4enqbusb91clir.apps.googleusercontent.com";
 const secret_id = "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";
 const app = express();
 
@@ -428,6 +48,31 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "eshankumar037@gmail.com",
+    pass: "ozgz rweg rcvk aoxx",
+  },
+});
+
+async function sendVerificationEmail(email, token) {
+  const mailOptions = {
+    from: '"WheelHub Support" <eshankumar037@gmail.com>',
+    to: email,
+    subject: "Verify your email",
+    text: `Click the following link to verify your email: http://localhost:3001/verify-email?token=${token}`,
+    html: `<p>Click the following link to verify your email:</p><a href="http://localhost:3001/verify-email?token=${token}">Verify Email</a>`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Verification email sent to", email);
+  } catch (err) {
+    console.error("Error sending email:", err.message);
+  }
+}
 
 app.get("/carAds", async (req, res) => {
   try {
@@ -484,7 +129,15 @@ app.post("/postAccessoryAd", upload.array("images", 3), async (req, res) => {
   }
 
   try {
-    const { city, accessoryInfo, category, condition, price, accessoryDescription, mobileNumber } = req.body;
+    const {
+      city,
+      accessoryInfo,
+      category,
+      condition,
+      price,
+      accessoryDescription,
+      mobileNumber,
+    } = req.body;
     console.log("Form data:", req.body);
     console.log("Uploaded files:", req.files);
 
@@ -503,10 +156,17 @@ app.post("/postAccessoryAd", upload.array("images", 3), async (req, res) => {
     });
 
     await newAccessoryAd.save();
-    res.status(201).json({ message: "Accessory ad posted successfully", ad: newAccessoryAd });
+    res
+      .status(201)
+      .json({
+        message: "Accessory ad posted successfully",
+        ad: newAccessoryAd,
+      });
   } catch (error) {
     console.error("Error posting accessory ad:", error.message);
-    res.status(500).json({ message: "Error posting accessory ad", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error posting accessory ad", error: error.message });
   }
 });
 
@@ -528,232 +188,283 @@ app.get("/myAds", async (req, res) => {
   }
 });
 
-app.post("/register", (req, res) => {
-    const { email, password, firstName, lastName } = req.body;
-  
-    console.log("Registering user:", { firstName, lastName, email, password });
-  
-    FormDataModel.findOne({ email: email })
-      .then((user) => {
-        if (user) {
-          console.log("User already registered");
-          res.json("Already registered");
-        } else {
-          FormDataModel.create({ email, password, firstName, lastName })
-            .then((log_reg_form) => {
-              console.log("User registered successfully:", log_reg_form);
-              res.json(log_reg_form);
-            })
-            .catch((err) => {
-              console.error("Error registering user:", err);
-              res
-                .status(500)
-                .json({ message: "Error registering user", error: err.message });
-            });
-        }
-      })
-      .catch((error) => {
-        console.error("Database error:", error);
-        res.status(500).json({ message: "Database error", error: error.message });
-      });
-  });
-  
-  app.post("/login", (req, res) => {
-    const { email, password } = req.body;
-    FormDataModel.findOne({ email: email }).then((user) => {
-      if (user) {
-        if (user.password === password) {
-          req.session.user = user;
-          res.json("Success");
-        } else {
-          res.json("Wrong password");
-        }
-      } else {
-        res.json("No records found!");
-      }
+app.get("/api/accessories", async (req, res) => {
+  try {
+    const accessories = await AccessoryAdModel.find();
+    res.json(accessories);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching accessories", error });
+  }
+});
+
+app.post("/register", async (req, res) => {
+  const { email, password, firstName, lastName } = req.body;
+
+  try {
+    let user = await FormDataModel.findOne({ email });
+    if (user) {
+      return res.status(400).json({ message: "Already registered" });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    const newUser = new FormDataModel({
+      email,
+      password,
+      name: `${firstName} ${lastName}`,
+      verified: false,
+      verificationToken,
     });
+
+    await newUser.save();
+
+    await sendVerificationEmail(email, verificationToken);
+
+    res.status(201).json({
+      message: "User registered successfully. Please verify your email.",
+      user: newUser,
+    });
+  } catch (err) {
+    if (err.code === 11000) {
+      res.status(400).json({ message: "Email is already registered" });
+    } else {
+      console.error("Error registering user:", err.message);
+      res
+        .status(500)
+        .json({ message: "Error registering user", error: err.message });
+    }
+  }
+});
+
+app.get("/verify-email", async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    const user = await FormDataModel.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    user.verified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully!" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error verifying email", error: error.message });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await FormDataModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "No records found!" });
+    }
+
+    if (user.password !== password) {
+      return res.status(400).json({ message: "Wrong password" });
+    }
+
+    if (!user.verified) {
+      return res.status(403).json({
+        message:
+          "Email not verified. Please verify your email before logging in.",
+      });
+    }
+
+    req.session.user = user;
+    res.status(200).json("Success");
+  } catch (error) {
+    res.status(500).json({ message: "Login error", error: error.message });
+  }
+});
+
+app.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Error logging out", error: err.message });
+    }
+    res.clearCookie("connect.sid");
+    res.json({ message: "Logged out successfully" });
   });
-  
-  app.post("/logout", (req, res) => {
+});
+
+app.get("/currentUser", (req, res) => {
+  if (req.session.user) {
+    res.json(req.session.user);
+  } else {
+    res.status(401).json({ message: "Not authenticated" });
+  }
+});
+
+app.put("/updateProfile", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  try {
+    const { firstName, lastName, email, password } = req.body;
+
+    const updatedUser = await FormDataModel.findByIdAndUpdate(
+      req.session.user._id,
+      { firstName, lastName, email, password },
+      { new: true, runValidators: true }
+    );
+
+    req.session.user = updatedUser;
+
+    res.json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating profile", error: error.message });
+  }
+});
+
+app.delete("/deleteProfile", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  try {
+    await FormDataModel.findByIdAndDelete(req.session.user._id);
+
     req.session.destroy((err) => {
       if (err) {
         return res
           .status(500)
           .json({ message: "Error logging out", error: err.message });
       }
+
       res.clearCookie("connect.sid");
-      res.json({ message: "Logged out successfully" });
+      res.json({ message: "Profile deleted successfully" });
     });
-  });
-  
-  app.get("/currentUser", (req, res) => {
-    if (req.session.user) {
-      res.json(req.session.user);
-    } else {
-      res.status(401).json({ message: "Not authenticated" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error deleting profile", error: error.message });
+  }
+});
+
+app.get("/carAds/:id", async (req, res) => {
+  try {
+    const carAd = await CarAdModel.findById(req.params.id);
+    if (!carAd) {
+      return res.status(404).json({ message: "Car ad not found" });
     }
-  });
-  
-  app.put("/updateProfile", async (req, res) => {
-    if (!req.session.user) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-  
-    try {
-      const { firstName, lastName, email, password } = req.body;
-  
-      const updatedUser = await FormDataModel.findByIdAndUpdate(
-        req.session.user._id,
-        { firstName, lastName, email, password },
-        { new: true, runValidators: true }
-      );
-  
-      req.session.user = updatedUser;
-  
-      res.json({ message: "Profile updated successfully", user: updatedUser });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error updating profile", error: error.message });
-    }
-  });
-  
-  app.delete("/deleteProfile", async (req, res) => {
-    if (!req.session.user) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-  
-    try {
-      await FormDataModel.findByIdAndDelete(req.session.user._id);
-  
-      req.session.destroy((err) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ message: "Error logging out", error: err.message });
-        }
-  
-        res.clearCookie("connect.sid");
-        res.json({ message: "Profile deleted successfully" });
-      });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error deleting profile", error: error.message });
-    }
-  });
-  
-  app.get("/carAds/:id", async (req, res) => {
-    try {
-      const carAd = await CarAdModel.findById(req.params.id);
-      if (!carAd) {
-        return res.status(404).json({ message: "Car ad not found" });
-      }
-      res.json(carAd);
-    } catch (error) {
-      res.status(500).json({ message: "Error", error: error.message });
-    }
-  });
-  
-  app.put("/carAds/:id", async (req, res) => {
-    try {
-      const updatedAd = await CarAdModel.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-      res.json(updatedAd);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error updating car ad", error: error.message });
-    }
-  });
-  
-  app.delete("/carAds/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const deletedAd = await CarAdModel.findByIdAndDelete(id);
-  
-      if (!deletedAd) {
-        return res.status(404).json({ message: "Car ad not found" });
-      }
-  
-      res.json({ message: "Ad deleted successfully" });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error deleting car ad", error: error.message });
-    }
-  });
-  
-  passport.use(
-    new OAuth2Strategy(
+    res.json(carAd);
+  } catch (error) {
+    res.status(500).json({ message: "Error", error: error.message });
+  }
+});
+
+app.put("/carAds/:id", async (req, res) => {
+  try {
+    const updatedAd = await CarAdModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
       {
-        clientID: client_id,
-        clientSecret: secret_id,
-        callbackURL: "http://localhost:3001/auth/google/callback",
-        scope: ["profile", "email"],
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          let user = await FormDataModel.findOne({ googleId: profile.id });
-  
-          if (!user) {
-            user = await FormDataModel.findOne({ email: profile.email });
-  
-            if (user) {
-              user.googleId = profile.id;
-              await user.save();
-              console.log("Existing user found by email, updated googleId.");
-            } else {
-              const fullName = `${profile.name.givenName} ${profile.name.familyName}`;
-              user = new FormDataModel({
-                googleId: profile.id,
-                name: fullName,
-                email: profile.email,
-              });
-              await user.save();
-              console.log("New user created with Google login.");
-            }
-          }
-  
-          return done(null, user);
-        } catch (error) {
-          console.error("Error during Google OAuth:", error);
-          return done(error, null);
-        }
+        new: true,
+        runValidators: true,
       }
-    )
-  );
-  
-  passport.serializeUser((user, done) => {
-    done(null, user);
-  });
-  
-  passport.deserializeUser((user, done) => {
-    done(null, user);
-  });
-  
-  app.get(
-    "/auth/google",
-    passport.authenticate("google", { scope: ["profile", "email"] })
-  );
-  
-  app.get(
-    "/auth/google/callback",
-    passport.authenticate("google", {
-      failureRedirect: "http://localhost:5173/login",
-    }),
-    (req, res) => {
-      req.session.user = req.user;
-      res.redirect("http://localhost:5173/UsedCars");
+    );
+    res.json(updatedAd);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating car ad", error: error.message });
+  }
+});
+
+app.delete("/carAds/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedAd = await CarAdModel.findByIdAndDelete(id);
+
+    if (!deletedAd) {
+      return res.status(404).json({ message: "Car ad not found" });
     }
-  );
-  
-  app.listen(3001, () => {
-    console.log("Server listening on http://127.0.0.1:3001");
-  });
+
+    res.json({ message: "Ad deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error deleting car ad", error: error.message });
+  }
+});
+
+passport.use(
+  new OAuth2Strategy(
+    {
+      clientID: client_id,
+      clientSecret: secret_id,
+      callbackURL: "http://localhost:3001/auth/google/callback",
+      scope: ["profile", "email"],
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        let user = await FormDataModel.findOne({ googleId: profile.id });
+
+        if (!user) {
+          user = await FormDataModel.findOne({ email: profile.email });
+
+          if (user) {
+            user.googleId = profile.id;
+            await user.save();
+            console.log("Existing user found by email, updated googleId.");
+          } else {
+            const fullName = `${profile.name.givenName} ${profile.name.familyName}`;
+            user = new FormDataModel({
+              googleId: profile.id,
+              name: fullName,
+              email: profile.email,
+            });
+            await user.save();
+            console.log("New user created with Google login.");
+          }
+        }
+
+        return done(null, user);
+      } catch (error) {
+        console.error("Error during Google OAuth:", error);
+        return done(error, null);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "http://localhost:5173/login",
+  }),
+  (req, res) => {
+    req.session.user = req.user;
+    res.redirect("http://localhost:5173/UsedCars");
+  }
+);
+
+app.listen(3001, () => {
+  console.log("Server listening on http://127.0.0.1:3001");
+});
