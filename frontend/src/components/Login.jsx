@@ -16,11 +16,13 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import GoogleIcon from "/google-icon.svg";
+import ForgotPassword from "./ForgotPassword";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (event) => {
@@ -32,6 +34,7 @@ const Login = () => {
         { email, password },
         { withCredentials: true }
       )
+
       .then((result) => {
         if (result.data === "Success") {
           toast.success("Login successfully!", {});
@@ -42,7 +45,7 @@ const Login = () => {
             .then((response) => {
               console.log("User Details:", response.data);
               setTimeout(() => {
-                navigate("/usedCars");
+                navigate("/UsedCars");
               }, 2000);
             })
             .catch((error) => {
@@ -55,14 +58,12 @@ const Login = () => {
           result.data.message ===
           "Email not verified. Please verify your email before logging in."
         ) {
-          // Show a specific error if the email is not verified
           toast.error("Please verify your email before logging in.");
         } else {
           toast.error("Incorrect credentials! Please try again.");
         }
       })
       .catch((error) => {
-        toast.error("An error occurred. Please try again.");
         console.error("Login error:", error);
       });
   };
@@ -180,8 +181,9 @@ const Login = () => {
 
               <Grid container justifyContent="flex-end" sx={{ mb: 2 }}>
                 <Link
-                  href="/forgotPassword"
+                  component="button"
                   variant="body2"
+                  onClick={() => setForgotPasswordOpen(true)}
                   sx={{
                     textTransform: "none",
                     color: "#555",
@@ -286,6 +288,11 @@ const Login = () => {
           </Box>
         </Grid>
       </Grid>
+
+      <ForgotPassword
+        open={forgotPasswordOpen}
+        handleClose={() => setForgotPasswordOpen(false)}
+      />
     </div>
   );
 };

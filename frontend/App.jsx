@@ -11,8 +11,8 @@ import MyAds from './src/components/MyAds';
 import AccessoryAd from "./src/components/AccessoryAd";
 import Autoparts from "./src/components/Autoparts";
 import AutopartsDetail from "./src/components/AutopartsDetail";
-import EmailVerification from "./src/components/EmailVerification"; 
-
+import EmailVerification from "./src/components/EmailVerification";
+import PasswordReset from "./src/components/PasswordReset"; // Import the PasswordReset component
 
 function App() {
   return (
@@ -29,12 +29,10 @@ function App() {
         <Route path="/my-ads" element={<MyAds />} />
         <Route path="/edit-car/:id" element={<PostAd />} />
         <Route path="/AccessoryAd" element={<AccessoryAd />} />
-        <Route path="/autoparts" element={<Autoparts/>} />
+        <Route path="/autoparts" element={<Autoparts />} />
         <Route path="/details/:id" element={<AutopartsDetail />} />
-        <Route path="/verify-email" element={<EmailVerification />} /> {/* Add this line */}
-
-
-
+        <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/reset-password/:token" element={<PasswordReset />} /> {/* Add this route */}
       </Routes>
     </BrowserRouter>
   );

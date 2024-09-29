@@ -9,8 +9,9 @@ const passport = require("passport");
 const OAuth2Strategy = require("passport-google-oauth2").Strategy;
 const multer = require("multer");
 const path = require("path");
-const nodemailer = require("nodemailer"); 
-const crypto = require("crypto"); 
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+const ResetToken = require("./models/ResetPassword");
 
 const client_id =
   "467364977483-n6ace55lvjoif05bjv4enqbusb91clir.apps.googleusercontent.com";
@@ -156,12 +157,10 @@ app.post("/postAccessoryAd", upload.array("images", 3), async (req, res) => {
     });
 
     await newAccessoryAd.save();
-    res
-      .status(201)
-      .json({
-        message: "Accessory ad posted successfully",
-        ad: newAccessoryAd,
-      });
+    res.status(201).json({
+      message: "Accessory ad posted successfully",
+      ad: newAccessoryAd,
+    });
   } catch (error) {
     console.error("Error posting accessory ad:", error.message);
     res
@@ -258,6 +257,7 @@ app.get("/verify-email", async (req, res) => {
   }
 });
 
+
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -284,6 +284,64 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ message: "Login error", error: error.message });
   }
 });
+
+app.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await FormDataModel.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const token = crypto.randomBytes(32).toString("hex");
+    await new ResetToken({ userId: user._id, token }).save();
+
+    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    await transporter.sendMail({
+      from: '"WheelHub Support" <eshankumar037@gmail.com>',
+      to: user.email,
+      subject: "Password Reset Link",
+      html: `<p>Please click the link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
+    });
+
+    res.json({ message: "Password reset link sent to your email." });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+});
+
+
+app.post("/reset-password", async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    const resetToken = await ResetToken.findOne({ token });
+
+    if (!resetToken) {
+      console.log("Invalid or expired token");
+      return res.status(400).json({ message: "Invalid or expired reset token" });
+    }
+
+    const user = await FormDataModel.findById(resetToken.userId);
+    if (!user) {
+      console.log("User not found");
+      return res.status(404).json({ message: "User not found" });
+    }
+
+   
+    user.password = password; 
+    await user.save();
+    
+   
+    await ResetToken.deleteOne({ _id: resetToken._id });
+
+    console.log("Password updated successfully for user:", user.email);
+    return res.status(200).json({ message: "Your password has been updated successfully!" });
+  } catch (error) {
+    console.error("Server error:", error.message);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
+
 
 app.post("/logout", (req, res) => {
   req.session.destroy((err) => {
