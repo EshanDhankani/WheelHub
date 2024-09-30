@@ -175,11 +175,16 @@ app.get("/myAds", async (req, res) => {
   }
 
   try {
-    const userAds = await CarAdModel.find({ userId: req.session.user._id });
-    if (userAds.length === 0) {
-      return res.json({ message: "No active ads", ads: [] });
-    }
-    res.json({ message: "Success", ads: userAds });
+    const carAds = await CarAdModel.find({ userId: req.session.user._id });
+    const accessoryAds = await AccessoryAdModel.find({
+      userId: req.session.user._id,
+    });
+
+    res.json({
+      message: "Success",
+      carAds: carAds,
+      accessoryAds: accessoryAds,
+    });
   } catch (error) {
     res
       .status(500)
@@ -257,7 +262,6 @@ app.get("/verify-email", async (req, res) => {
   }
 });
 
-
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -308,7 +312,6 @@ app.post("/forgot-password", async (req, res) => {
   }
 });
 
-
 app.post("/reset-password", async (req, res) => {
   try {
     const { token, password } = req.body;
@@ -316,7 +319,9 @@ app.post("/reset-password", async (req, res) => {
 
     if (!resetToken) {
       console.log("Invalid or expired token");
-      return res.status(400).json({ message: "Invalid or expired reset token" });
+      return res
+        .status(400)
+        .json({ message: "Invalid or expired reset token" });
     }
 
     const user = await FormDataModel.findById(resetToken.userId);
@@ -325,23 +330,22 @@ app.post("/reset-password", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-   
-    user.password = password; 
+    user.password = password;
     await user.save();
-    
-   
+
     await ResetToken.deleteOne({ _id: resetToken._id });
 
     console.log("Password updated successfully for user:", user.email);
-    return res.status(200).json({ message: "Your password has been updated successfully!" });
+    return res
+      .status(200)
+      .json({ message: "Your password has been updated successfully!" });
   } catch (error) {
     console.error("Server error:", error.message);
-    return res.status(500).json({ message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 });
-
-
-
 
 app.post("/logout", (req, res) => {
   req.session.destroy((err) => {
@@ -456,6 +460,70 @@ app.delete("/carAds/:id", async (req, res) => {
     res
       .status(500)
       .json({ message: "Error deleting car ad", error: error.message });
+  }
+});
+
+/////
+app.put("/accessoryAds/:id", upload.array("images", 3), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      city,
+      accessoryInfo,
+      category,
+      condition,
+      price,
+      accessoryDescription,
+      mobileNumber,
+    } = req.body;
+
+    // If new images are uploaded, replace existing images
+    const images =
+      req.files.length > 0
+        ? req.files.map((file) => file.path)
+        : req.body.images;
+
+    const updatedAd = await AccessoryAdModel.findByIdAndUpdate(
+      id,
+      {
+        city,
+        accessoryInfo,
+        category,
+        condition,
+        price,
+        accessoryDescription,
+        mobileNumber,
+        images,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAd) {
+      return res.status(404).json({ message: "Accessory ad not found" });
+    }
+    res.json({ message: "Ad updated successfully", ad: updatedAd });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating accessory ad", error: error.message });
+  }
+});
+
+////
+app.delete("/accessoryAds/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedAd = await AccessoryAdModel.findByIdAndDelete(id);
+
+    if (!deletedAd) {
+      return res.status(404).json({ message: "Accessory ad not found" });
+    }
+
+    res.json({ message: "Ad deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error deleting Accessory ad", error: error.message });
   }
 });
 

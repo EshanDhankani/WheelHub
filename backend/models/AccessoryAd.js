@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const AccessoryAdSchema = new mongoose.Schema(
   {
     userId: {
@@ -20,4 +19,4 @@ const AccessoryAdSchema = new mongoose.Schema(
 );
 
 const AccessoryAdModel = mongoose.model("AccessoryAd", AccessoryAdSchema);
-module.exports = AccessoryAdModel;
+ module.exports = AccessoryAdModel;

@@ -44,12 +44,12 @@ const FullScreenContainer = styled(Box)(() => ({
   marginTop: "100px",
   minHeight: "90vh",
   width: "100%",
-  backgroundColor: "#FFFBE6",
+  background: "linear-gradient(135deg, #030947, #12152E, #1F1F1F)",
   display: "flex",
 }));
 
 const Sidebar = styled(Box)(({ theme }) => ({
-  width: "230px",
+  width: "220px",
   minHeight: "100vh",
   marginTop: "123px",
   backgroundColor: "#ffffff",
@@ -57,6 +57,7 @@ const Sidebar = styled(Box)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   padding: theme.spacing(2),
   position: "fixed",
+  marginLeft:"9px",
   left: 0,
   top: 0,
 }));
@@ -131,16 +132,19 @@ const Autoparts = () => {
   ];
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/api/accessories")
-      .then((response) => {
-        setAccessories(response.data);
-        setFilteredAccessories(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching accessories:", error);
-      });
-  }, []);
+  const fetchAccessories = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/api/accessories");
+      setAccessories(response.data);
+    } catch (error) {
+      console.error("Error fetching accessories:", error);
+    }
+  };
+
+  fetchAccessories();
+}, []);
+
+
 
   useEffect(() => {
     let filtered = accessories;

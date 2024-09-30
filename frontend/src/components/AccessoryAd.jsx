@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "./Navbar";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -67,7 +67,7 @@ const HeaderSection = styled("div")(({ theme }) => ({
   textAlign: "center",
   boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
   marginBottom: theme.spacing(4),
-  marginTop: "110px"
+  marginTop: "110px",
 }));
 
 const HeaderText = styled(Typography)(({ theme }) => ({
@@ -179,15 +179,6 @@ const AccessoryAd = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.mobileNumber.length !== 11) {
-      setSnackbar({
-        open: true,
-        message: "Mobile number must be exactly 11 digits.",
-        severity: "error",
-      });
-      return;
-    }
-
     try {
       const formDataToSend = new FormData();
       for (const key in formData) {
@@ -203,8 +194,9 @@ const AccessoryAd = () => {
       if (isEditMode) {
         await axios.put(
           `http://localhost:3001/accessoryAds/${location.state.adData._id}`,
-          formData,
+          formDataToSend,
           {
+            headers: { "Content-Type": "multipart/form-data" },
             withCredentials: true,
           }
         );
@@ -214,10 +206,14 @@ const AccessoryAd = () => {
           severity: "success",
         });
       } else {
-        await axios.post("http://localhost:3001/postAccessoryAd", formDataToSend, {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        });
+        await axios.post(
+          "http://localhost:3001/postAccessoryAd",
+          formDataToSend,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          }
+        );
         setSnackbar({
           open: true,
           message: "Ad posted successfully!",
@@ -227,7 +223,7 @@ const AccessoryAd = () => {
 
       navigate("/my-ads");
     } catch (error) {
-      console.error("Error posting/updating ad:", error);
+      console.error("Error posting/updating ad:", error.message);
       setSnackbar({
         open: true,
         message: "Error posting/updating ad. Please try again.",
@@ -247,15 +243,29 @@ const AccessoryAd = () => {
         <HeaderText>Sell your Accessory With 3 Easy & Simple Steps!</HeaderText>
         <StepSection>
           <Step>
-            <img src="https://wsa3.pakwheels.com/assets/sell-icons/accesseries-cfb1476bd5b67f93bd0d0657af08e4cf.svg" alt="Step 1" style={{ width: "60px" }} />
-            <Typography variant="h6">Enter Your Accessory Information</Typography>
+            <img
+              src="https://wsa3.pakwheels.com/assets/sell-icons/accesseries-cfb1476bd5b67f93bd0d0657af08e4cf.svg"
+              alt="Step 1"
+              style={{ width: "60px" }}
+            />
+            <Typography variant="h6">
+              Enter Your Accessory Information
+            </Typography>
           </Step>
           <Step>
-            <img src="https://wsa1.pakwheels.com/assets/sell-icons/photos-708994063564767acaca738e1261f90d.svg" alt="Step 2" style={{ width: "60px" }} />
+            <img
+              src="https://wsa1.pakwheels.com/assets/sell-icons/photos-708994063564767acaca738e1261f90d.svg"
+              alt="Step 2"
+              style={{ width: "60px" }}
+            />
             <Typography variant="h6">Upload Photos</Typography>
           </Step>
           <Step>
-            <img src="https://wsa4.pakwheels.com/assets/sell-icons/tag-3ba531fca999b37f89be28609fe9e9c0.svg" alt="Step 3" style={{ width: "60px" }} />
+            <img
+              src="https://wsa4.pakwheels.com/assets/sell-icons/tag-3ba531fca999b37f89be28609fe9e9c0.svg"
+              alt="Step 3"
+              style={{ width: "60px" }}
+            />
             <Typography variant="h6">Enter Your Selling Price</Typography>
           </Step>
         </StepSection>

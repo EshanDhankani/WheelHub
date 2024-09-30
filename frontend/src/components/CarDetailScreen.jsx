@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PropTypes from "prop-types"; 
+import PropTypes from "prop-types";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import {
@@ -13,7 +13,7 @@ import {
   CardContent,
   LinearProgress,
 } from "@mui/material";
-import { MapPin, MessageCircle } from "lucide-react"; 
+import { MapPin, MessageCircle, Phone } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -21,34 +21,35 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import Navbar from "./Navbar";
 
-const CustomRating = ({ label, value, maxValue }) => {
-  return (
-    <Box sx={{ mb: 2, display: "flex", alignItems: "center" }}>
-      <Typography variant="subtitle1" sx={{ flex: 1, fontWeight: "bold" }}>
-        {label}
-      </Typography>
-      <LinearProgress
-        variant="determinate"
-        value={(value / maxValue) * 100}
-        sx={{
-          height: 8,
-          width: "70%",
-          borderRadius: 4,
-          backgroundColor: "#e0e0e0",
-        }}
-      />
-      <Typography variant="body2" sx={{ ml: 2 }}>
-        {value}/{maxValue}
-      </Typography>
-    </Box>
-  );
-};
-
+const CustomRating = ({ label, value, maxValue }) => (
+  <Box sx={{ mb: 2, display: "flex", alignItems: "center" }}>
+    <Typography variant="subtitle1" sx={{ flex: 1, fontWeight: "bold" }}>
+      {label}
+    </Typography>
+    <LinearProgress
+      variant="determinate"
+      value={(value / maxValue) * 100}
+      sx={{
+        height: 8,
+        width: "70%",
+        borderRadius: 5,
+        backgroundColor: "#e0e0e0",
+        "& .MuiLinearProgress-bar": {
+          borderRadius: 5,
+          background: "linear-gradient(to right, #76c7c0, #84fab0)",
+        },
+      }}
+    />
+    <Typography variant="body2" sx={{ ml: 2 }}>
+      {value}/{maxValue}
+    </Typography>
+  </Box>
+);
 
 CustomRating.propTypes = {
-  label: PropTypes.string.isRequired, 
-  value: PropTypes.number.isRequired,   
-  maxValue: PropTypes.number.isRequired 
+  label: PropTypes.string.isRequired,
+  value: PropTypes.number.isRequired,
+  maxValue: PropTypes.number.isRequired,
 };
 
 const CarDetailScreen = () => {
@@ -100,27 +101,77 @@ const CarDetailScreen = () => {
   }
 
   return (
-    <>
-      <Navbar />
+    <Box
+      sx={{
+        background: "linear-gradient(to right, #2c3e50, #bdc3c7)",
+        minHeight: "100vh",
+        pt: 2,
+      }}
+    >
+      {/* Include Navbar within the Content Layout */}
+      <Container maxWidth="lg" sx={{ mb: 9 }}>
+        <Navbar />
+      </Container>
 
-      <Container maxWidth="lg" sx={{ py: 11, mt: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold" }}>
-          {carDetails.carInfo}
-        </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <MapPin size={20} style={{ marginRight: 8 }} />
-          <Typography variant="subtitle1">{carDetails.city}</Typography>
+      {/* Main Container with Background and Padding */}
+      <Container
+        maxWidth="lg"
+        sx={{
+          background: "#fff",
+          borderRadius: 4,
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+          p: 4,
+        }}
+      >
+        {/* Header Section */}
+        <Box
+          sx={{
+            background: "linear-gradient(45deg, #6DD5FA, #2980B9, #6DD5FA)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+            p: 3,
+            textAlign: "center",
+            color: "#fff",
+            mb: 5,
+            borderRadius: 2,
+          }}
+        >
+          <Typography
+            variant="h2"
+            sx={{ fontWeight: "bold", letterSpacing: 1.5 }}
+          >
+            {carDetails.carInfo}
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              mt: 2,
+            }}
+          >
+            <MapPin size={32} style={{ marginRight: 8 }} />
+            <Typography variant="h5">{carDetails.city}</Typography>
+          </Box>
         </Box>
 
+        {/* Main Car Details and Image Section */}
         <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
-            <Box sx={{ mb: 4 }}>
+            {/* Image Carousel */}
+            <Box
+              sx={{
+                mb: 6,
+                overflow: "hidden",
+                borderRadius: 4,
+                boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+              }}
+            >
               <Swiper
                 modules={[Navigation, Pagination]}
                 navigation
                 pagination={{ clickable: true }}
                 loop={true}
-                style={{ width: "100%", height: "550px" }}
+                style={{ width: "100%", height: "500px" }}
               >
                 {carDetails.images.map((image, index) => (
                   <SwiperSlide key={index}>
@@ -138,47 +189,47 @@ const CarDetailScreen = () => {
               </Swiper>
             </Box>
 
+            {/* Car Details */}
             <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+              <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
                 Car Details
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={6} md={3}>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ display: "flex", alignItems: "center" }}
+                  >
                     Registered In
                   </Typography>
-                  <Typography variant="body1">{carDetails.city}</Typography>
+                  <Typography variant="h6">{carDetails.city}</Typography>
                 </Grid>
                 <Grid item xs={6} md={3}>
-                  <Typography variant="body2" color="text.secondary">
-                    Color
-                  </Typography>
-                  <Typography variant="body1">
+                  <Typography variant="subtitle1">Color</Typography>
+                  <Typography variant="h6">
                     {carDetails.exteriorColor}
                   </Typography>
                 </Grid>
                 <Grid item xs={6} md={3}>
-                  <Typography variant="body2" color="text.secondary">
-                    Mileage
-                  </Typography>
-                  <Typography variant="body1">
+                  <Typography variant="subtitle1">Mileage</Typography>
+                  <Typography variant="h6">
                     {carDetails.mileage.toLocaleString()} km
                   </Typography>
                 </Grid>
-
                 <Grid item xs={6} md={3}>
-                  <Typography variant="body2" color="text.secondary">
-                    Year
-                  </Typography>
-                  <Typography variant="body1">
-                    {carDetails.year.toString()}
-                  </Typography>
+                  <Typography variant="subtitle1">Year</Typography>
+                  <Typography variant="h6">{carDetails.year}</Typography>
                 </Grid>
               </Grid>
             </Box>
 
+            {/* Overall Rating Section */}
             <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
+              <Typography
+                variant="h5"
+                gutterBottom
+                sx={{ fontWeight: "bold", color: "#2E3B4E" }}
+              >
                 Overall Rating
               </Typography>
               <CustomRating label="Interior" value={4} maxValue={5} />
@@ -186,58 +237,64 @@ const CarDetailScreen = () => {
               <CustomRating label="AC/Heater" value={5} maxValue={5} />
             </Box>
 
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
-                Seller's Comments
-              </Typography>
-              <Typography variant="body1">{carDetails.adDescription}</Typography>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Card sx={{ mb: 2 }}>
+            {/* Seller's Comments Section */}
+            <Card
+              sx={{
+                mb: 4,
+                borderRadius: 4,
+                boxShadow: "0 4px 8px rgba(0,0,0,0.4)",
+              }}
+            >
               <CardContent>
                 <Typography
-                  variant="h6"
+                  variant="h5"
                   gutterBottom
-                  sx={{ fontWeight: "bold" }}
+                  sx={{ fontWeight: "bold", color: "#1976D2" }}
                 >
-                  PKR {parseInt(carDetails.price).toString()}
+                  Seller's Comments
                 </Typography>
-                <Typography
-                  variant="h6"
-                  gutterBottom
-                  sx={{ fontWeight: "bold" }}
-                >
-                  Phone Number 0{parseInt(carDetails.mobileNumber).toString()}
+                <Typography variant="body1">
+                  {carDetails.adDescription}
                 </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
+          {/* Price and Contact Section */}
+          <Grid item xs={12} md={4}>
+            <Card
+              sx={{
+                mb: 4,
+                p: 3,
+                borderRadius: 4,
+                boxShadow: "0 10px 16px rgba(0,0,0,0.4)",
+              }}
+            >
+              <CardContent>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: "bold", color: "#D32F2F" }}
+                >
+                  PKR {parseInt(carDetails.price).toLocaleString()}
+                </Typography>
+                <Typography variant="h6" sx={{ mt: 1 }}>
+                  <Phone style={{ marginRight: 8 }} /> Contact: 0
+                  {parseInt(carDetails.mobileNumber).toString()}
+                </Typography>
                 <Button
-                  variant="outlined"
-                  // fullWidth
+                  variant="contained"
+                  fullWidth
+                  sx={{ mt: 2, background: "#1976D2", color: "#fff" }}
                   startIcon={<MessageCircle />}
                 >
                   Send Message
                 </Button>
               </CardContent>
             </Card>
-
-            <Card sx={{ mb: 2 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
-                  Safety Tips for Transactions
-                </Typography>
-                <ul>
-                  <li>Use a safe location to meet seller</li>
-                  <li>Avoid cash transactions</li>
-                  <li>Beware of unrealistic offers</li>
-                </ul>
-              </CardContent>
-            </Card>
           </Grid>
         </Grid>
       </Container>
-    </>
+    </Box>
   );
 };
 
