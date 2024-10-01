@@ -12,6 +12,13 @@ import {
   Card,
   CardContent,
   LinearProgress,
+  TextField,
+  List,
+  ListItem,
+  IconButton,
+  InputAdornment,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { MapPin, MessageCircle, Phone } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -19,6 +26,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+
 import Navbar from "./Navbar";
 
 const CustomRating = ({ label, value, maxValue }) => (
@@ -58,6 +66,14 @@ const CarDetailScreen = () => {
   const [error, setError] = useState(null);
   const { id } = useParams();
 
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const [fontColor, setFontColor] = useState("#000000");
+  const [fontSize, setFontSize] = useState(14);
+  const [fontStyle, setFontStyle] = useState("Arial");
+
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
@@ -73,8 +89,68 @@ const CarDetailScreen = () => {
       }
     };
 
+    const fetchMessages = async () => {
+      try {
+        const messageResponse = await axios.get(
+          `http://localhost:3001/messages/${id}`,
+          { withCredentials: true }
+        );
+        setMessages(messageResponse.data);
+      } catch (error) {
+        console.warn("Failed to fetch messages:", error);
+        setMessages([]);
+      }
+    };
+
+    const checkAuthentication = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/currentUser", {
+          withCredentials: true,
+        });
+        setIsAuthenticated(response.data !== null);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+
     fetchCarDetails();
-  }, [id]);
+
+    checkAuthentication().then(() => {
+      if (isAuthenticated) {
+        fetchMessages();
+      }
+    });
+  }, [id, isAuthenticated]);
+
+  const handleSendMessage = async () => {
+    if (newMessage.trim() === "") return;
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/messages",
+        {
+          carAdId: id,
+          receiverId: carDetails.userId._id || carDetails.userId,
+          message: newMessage,
+          fontColor,
+          fontSize,
+          fontStyle,
+        },
+        { withCredentials: true }
+      );
+
+      setMessages([...messages, response.data.newMessage]);
+      setNewMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+  };
 
   if (loading) {
     return (
@@ -108,12 +184,10 @@ const CarDetailScreen = () => {
         pt: 2,
       }}
     >
-      {/* Include Navbar within the Content Layout */}
       <Container maxWidth="lg" sx={{ mb: 9 }}>
         <Navbar />
       </Container>
 
-      {/* Main Container with Background and Padding */}
       <Container
         maxWidth="lg"
         sx={{
@@ -123,7 +197,6 @@ const CarDetailScreen = () => {
           p: 4,
         }}
       >
-        {/* Header Section */}
         <Box
           sx={{
             background: "linear-gradient(45deg, #6DD5FA, #2980B9, #6DD5FA)",
@@ -154,10 +227,8 @@ const CarDetailScreen = () => {
           </Box>
         </Box>
 
-        {/* Main Car Details and Image Section */}
         <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
-            {/* Image Carousel */}
             <Box
               sx={{
                 mb: 6,
@@ -189,19 +260,14 @@ const CarDetailScreen = () => {
               </Swiper>
             </Box>
 
-            {/* Car Details */}
             <Box sx={{ mb: 4 }}>
               <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
                 Car Details
               </Typography>
+
               <Grid container spacing={2}>
                 <Grid item xs={6} md={3}>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ display: "flex", alignItems: "center" }}
-                  >
-                    Registered In
-                  </Typography>
+                  <Typography variant="subtitle1">Registered In</Typography>
                   <Typography variant="h6">{carDetails.city}</Typography>
                 </Grid>
                 <Grid item xs={6} md={3}>
@@ -220,47 +286,184 @@ const CarDetailScreen = () => {
                   <Typography variant="subtitle1">Year</Typography>
                   <Typography variant="h6">{carDetails.year}</Typography>
                 </Grid>
+                <Grid item xs={6} md={3}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight="bold"
+                    fontSize={20}
+                    color="#B8001F"
+                  >
+                    Seller Comments
+                  </Typography>
+                  <Typography variant="h6">
+                    {carDetails.adDescription}
+                  </Typography>
+                </Grid>
               </Grid>
             </Box>
 
-            {/* Overall Rating Section */}
-            <Box sx={{ mb: 4 }}>
-              <Typography
-                variant="h5"
-                gutterBottom
-                sx={{ fontWeight: "bold", color: "#2E3B4E" }}
-              >
-                Overall Rating
+            {/* Chat Box Section */}
+            <Box sx={{ mb: 4, marginTop: 10 }}>
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
+                <MessageCircle style={{ marginRight: 8 }} /> Chat with Seller
               </Typography>
-              <CustomRating label="Interior" value={4} maxValue={5} />
-              <CustomRating label="Exterior & Body" value={3.5} maxValue={5} />
-              <CustomRating label="AC/Heater" value={5} maxValue={5} />
-            </Box>
+              <List
+                sx={{
+                  maxHeight: 200,
+                  overflow: "auto",
+                  border: "1px solid #ddd",
+                  borderRadius: 1,
+                  mb: 2,
+                }}
+              >
+                {messages.map((msg, index) => (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      justifyContent:
+                        msg.senderId._id === carDetails.userId
+                          ? "flex-start"
+                          : "flex-end",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        background:
+                          msg.senderId._id === carDetails.userId
+                            ? "#d1e7dd"
+                            : "#f8d7da",
+                        color:
+                          msg.senderId._id === carDetails.userId
+                            ? "#0f5132"
+                            : "#842029",
+                        borderRadius:
+                          msg.senderId._id === carDetails.userId
+                            ? "15px 15px 15px 0"
+                            : "15px 15px 0 15px",
+                        maxWidth: "60%",
+                        padding: "5px",
+                        margin: "5px 0",
+                        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: "bold", marginBottom: "2px" }}
+                      >
+                        {msg.senderId.name}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color: msg.fontColor,
+                          fontSize: msg.fontSize,
+                          fontFamily: msg.fontStyle,
+                        }}
+                      >
+                        {msg.message}
+                      </Typography>{" "}
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          marginTop: "5px",
+                          textAlign: "right",
+                        }}
+                      >
+                        {new Date(msg.createdAt).toLocaleTimeString()}{" "}
+                      </Typography>
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
+              <Grid container spacing={2}>
+                <Grid item xs={9}>
+                  <TextField
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type a message..."
+                    fullWidth
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <IconButton></IconButton>
+                        </InputAdornment>
+                      ),
+                      sx: { borderRadius: "30px" },
+                    }}
+                    disabled={!isAuthenticated}
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <Button
+                    variant="contained"
+                    onClick={handleSendMessage}
+                    fullWidth
+                    sx={{
+                      height: "100%",
+                      background: "linear-gradient(to right, #43cea2, #185a9d)",
+                      color: "#fff",
+                      borderRadius: "30px",
+                    }}
+                    disabled={!isAuthenticated}
+                  >
+                    Send
+                  </Button>
+                </Grid>
+              </Grid>
 
-            {/* Seller's Comments Section */}
-            <Card
-              sx={{
-                mb: 4,
-                borderRadius: 4,
-                boxShadow: "0 4px 8px rgba(0,0,0,0.4)",
-              }}
-            >
-              <CardContent>
-                <Typography
-                  variant="h5"
-                  gutterBottom
-                  sx={{ fontWeight: "bold", color: "#1976D2" }}
-                >
-                  Seller's Comments
-                </Typography>
-                <Typography variant="body1">
-                  {carDetails.adDescription}
-                </Typography>
-              </CardContent>
-            </Card>
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle1">Customize Message</Typography>
+                <Grid container spacing={2} sx={{ mt: 1 }}>
+                  <Grid item xs={4}>
+                    <Select
+                      fullWidth
+                      value={fontColor}
+                      onChange={(e) => setFontColor(e.target.value)}
+                      variant="outlined"
+                    >
+                      <MenuItem value="#000000">Black</MenuItem>
+                      <MenuItem value="#ff0000">Red</MenuItem>
+                      <MenuItem value="#00ff00">Green</MenuItem>
+                      <MenuItem value="#0000ff">Blue</MenuItem>
+                    </Select>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Select
+                      fullWidth
+                      value={fontSize}
+                      onChange={(e) => setFontSize(e.target.value)}
+                      variant="outlined"
+                    >
+                      <MenuItem value={14}>14px</MenuItem>
+                      <MenuItem value={16}>16px</MenuItem>
+                      <MenuItem value={18}>18px</MenuItem>
+                      <MenuItem value={20}>20px</MenuItem>
+                    </Select>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Select
+                      fullWidth
+                      value={fontStyle}
+                      onChange={(e) => setFontStyle(e.target.value)}
+                      variant="outlined"
+                    >
+                      <MenuItem value="Arial">Arial</MenuItem>
+                      <MenuItem value="Courier New">Courier New</MenuItem>
+                      <MenuItem value="Georgia">Georgia</MenuItem>
+                      <MenuItem value="Times New Roman">
+                        Times New Roman
+                      </MenuItem>
+                    </Select>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Box>
           </Grid>
 
-          {/* Price and Contact Section */}
           <Grid item xs={12} md={4}>
             <Card
               sx={{
@@ -278,17 +481,32 @@ const CarDetailScreen = () => {
                   PKR {parseInt(carDetails.price).toLocaleString()}
                 </Typography>
                 <Typography variant="h6" sx={{ mt: 1 }}>
-                  <Phone style={{ marginRight: 8 }} /> Contact: 0
-                  {parseInt(carDetails.mobileNumber).toString()}
+                  <Phone style={{ marginRight: 8 }} /> Contact:{" "}
+                  {carDetails.mobileNumber}
                 </Typography>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{ mt: 2, background: "#1976D2", color: "#fff" }}
-                  startIcon={<MessageCircle />}
+              </CardContent>
+            </Card>
+            <Card
+              sx={{
+                mb: 4,
+                p: 3,
+                borderRadius: 4,
+                boxShadow: "0 10px 16px rgba(0,0,0,0.4)",
+                marginTop: "100px",
+              }}
+            >
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: "bold", color: "#D32F2F" }}
                 >
-                  Send Message
-                </Button>
+                  Safety Tips for transaction
+                </Typography>
+                <Typography variant="h6" sx={{ mt: 1 }}>
+                  <Typography>1. Use a safe location to meet seller</Typography>
+                  <Typography>2. Avoid cash transactions</Typography>
+                  <Typography>3. Beware of unrealistic offers</Typography>
+                </Typography>
               </CardContent>
             </Card>
           </Grid>

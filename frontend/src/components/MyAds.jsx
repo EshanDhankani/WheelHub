@@ -32,6 +32,7 @@ const MyAds = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
 
+
   useEffect(() => {
     const fetchMyAds = async () => {
       try {
@@ -48,6 +49,7 @@ const MyAds = () => {
     };
     fetchMyAds();
   }, []);
+  
 
   const handleEditClick = (ad, type) => {
     if (type === "car") {

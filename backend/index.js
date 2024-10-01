@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const CarAdModel = require("./models/CarAd");
 const AccessoryAdModel = require("./models/AccessoryAd");
 const FormDataModel = require("./models/FormData");
+const MessageModel = require("./models/Message");
 const session = require("express-session");
 const passport = require("passport");
 const OAuth2Strategy = require("passport-google-oauth2").Strategy;
@@ -12,6 +13,7 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const ResetToken = require("./models/ResetPassword");
+
 
 const client_id =
   "467364977483-n6ace55lvjoif05bjv4enqbusb91clir.apps.googleusercontent.com";
@@ -74,6 +76,52 @@ async function sendVerificationEmail(email, token) {
     console.error("Error sending email:", err.message);
   }
 }
+
+
+
+app.post("/messages", async (req, res) => {
+  console.log("User session:", req.session.user);
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  const { carAdId, receiverId, message, fontColor, fontSize, fontStyle } = req.body;
+
+  try {
+    const newMessage = new MessageModel({
+      senderId: req.session.user._id,
+      receiverId,
+      carAdId,
+      message,
+      fontColor,
+      fontSize,
+      fontStyle, 
+    });
+
+    const savedMessage = await newMessage.save();
+    res.status(201).json({ message: "Message sent successfully", newMessage: savedMessage });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending message", error: error.message });
+  }
+});
+
+app.get("/messages/:carAdId", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  const { carAdId } = req.params;
+
+  try {
+    const messages = await MessageModel.find({ carAdId })
+      .populate("senderId", "name email")
+      .populate("receiverId", "name email");
+    res.status(200).json(messages); 
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching messages", error: error.message });
+  }
+});
+
 
 app.get("/carAds", async (req, res) => {
   try {
@@ -477,7 +525,6 @@ app.put("/accessoryAds/:id", upload.array("images", 3), async (req, res) => {
       mobileNumber,
     } = req.body;
 
-    // If new images are uploaded, replace existing images
     const images =
       req.files.length > 0
         ? req.files.map((file) => file.path)

@@ -44,7 +44,7 @@ const FullScreenContainer = styled(Box)(() => ({
   marginTop: "100px",
   minHeight: "90vh",
   width: "100%",
-  background: "linear-gradient(135deg, #030947, #12152E, #1F1F1F)",
+  background: "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
   display: "flex",
 }));
 
@@ -74,7 +74,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: theme.spacing(0),
   overflow: "hidden",
   position: "relative",
-  backgroundColor: "#FFFBE6",
+  backgroundColor: "#FFE5CF",
   boxShadow: "none",
   border: "2px solid #181C14",
   transition: "transform 0.3s, box-shadow 0.3s",
@@ -89,8 +89,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
 const PriceChip = styled(Chip)(({ theme }) => ({
   fontWeight: "bold",
   fontSize: "16px",
-  backgroundColor: "#ff5722",
-  color: "#fffff",
+  backgroundColor: "#C7253E",
+  color: "#fff",
   borderRadius: 4,
   padding: theme.spacing(0.5),
   position: "absolute",
@@ -217,8 +217,8 @@ const Autoparts = () => {
               onClick={handleSearch}
               sx={{
                 textTransform: "none",
-                color: "#fff",
-                backgroundColor: theme.palette.secondary.main,
+                color: "fff",
+                backgroundColor: "#C7253E",
                 "&:hover": {
                   backgroundColor: theme.palette.secondary.dark,
                 },
@@ -380,7 +380,7 @@ const Autoparts = () => {
                         >
                           {accessory.accessoryInfo}
                         </Typography>
-                        <PriceChip
+                        <PriceChip 
                           label={`PKR ${accessory.price.toString()}`}
                         />
                       </CardContent>

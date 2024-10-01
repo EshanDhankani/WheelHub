@@ -11,7 +11,7 @@ function HomeSection({ imageSrc }) {
         alignItems: "center",
         justifyContent: "space-between",
         padding: 2,
-        background: "linear-gradient(135deg, #030947, #12152E, #1F1F1F)",
+        background: "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
         paddingTop: "10%",
         height: "110vh",
         fontFamily: "Poppins, sans-serif",

@@ -14,6 +14,7 @@ import AutopartsDetail from "./src/components/AutopartsDetail";
 import EmailVerification from "./src/components/EmailVerification";
 import PasswordReset from "./src/components/PasswordReset";
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -34,6 +35,7 @@ function App() {
         <Route path="/details/:id" element={<AutopartsDetail />} />
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/reset-password/:token" element={<PasswordReset />} />
+        
       </Routes>
     </BrowserRouter>
   );

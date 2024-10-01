@@ -89,7 +89,7 @@ const Login = () => {
           sm={4}
           md={6}
           sx={{
-            background: "linear-gradient(135deg, #030947, #12152E, #1F1F1F)",
+            background: "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
             backgroundSize: "cover",
             display: "flex",
             justifyContent: "center",

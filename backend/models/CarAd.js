@@ -9,7 +9,7 @@ const CarAdSchema = new mongoose.Schema(
     },
     city: String,
     carInfo: String,
-    year: { type: Number, required: true },
+    year: { type: Number},
     registeredIn: String,
     exteriorColor: String,
     mileage: String,
