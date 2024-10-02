@@ -221,13 +221,11 @@ const Navbar = () => {
         </Container>
       </AppBar>
 
-      {/* Dropdown for Post an Ad */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseDropdown}>
         <MenuItem onClick={() => handleMenuItemClick("/PostAd")}>Sell Your Car</MenuItem>
         <MenuItem onClick={() => handleMenuItemClick("/AccessoryAd")}>Sell Your Accessory</MenuItem>
       </Menu>
 
-      {/* Login Popup with Carousel */}
       <Dialog open={showLoginPopup} onClose={handleClosePopup}>
         <IconButton
           aria-label="close"

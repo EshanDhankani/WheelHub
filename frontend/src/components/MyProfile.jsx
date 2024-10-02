@@ -8,9 +8,9 @@ import {
   Typography,
   Container,
   Paper,
-  Avatar,
   Grid,
 } from "@mui/material";
+import Navbar from "./Navbar";
 
 const MyProfile = () => {
   const [user, setUser] = useState(null);
@@ -84,126 +84,154 @@ const MyProfile = () => {
   }
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={4} sx={{ p: 4, mt: 6, borderRadius: 2 }}>
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{ fontWeight: "bold", textAlign: "center" }}
+    <Box
+      sx={{
+        background:  "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        pb: 6,
+      }}
+    >
+      <Navbar />
+      <Container
+        maxWidth="sm"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          height: "80vh",
+        }}
+      >
+        <Paper
+          elevation={4}
+          sx={{
+            p: 6,
+            borderRadius: 2,
+            width: "100%",
+          }}
         >
-          My Profile
-        </Typography>
-
-        <form noValidate autoComplete="off">
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="First Name"
-                name="firstName"
-                fullWidth
-                margin="normal"
-                value={formData.firstName}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Last Name"
-                name="lastName"
-                fullWidth
-                margin="normal"
-                value={formData.lastName}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Email"
-                name="email"
-                fullWidth
-                margin="normal"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                fullWidth
-                margin="normal"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={!isEditing}
-              />
-            </Grid>
-          </Grid>
-
-          <Box
-            sx={{ display: "flex", justifyContent: "center", gap: 3, mt: 4 }}
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{ fontWeight: "bold", textAlign: "center" }}
           >
-            {isEditing ? (
-              <>
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: "#1976d2",
-                    color: "#fff",
-                    textTransform: "none",
-                    "&:hover": { backgroundColor: "#115293" },
-                  }}
-                  onClick={handleUpdate}
-                >
-                  Save Changes
-                </Button>
-                <Button
-                  variant="outlined"
-                  sx={{
-                    borderColor: "#1976d2",
-                    textTransform: "none",
-                    "&:hover": { borderColor: "#115293" },
-                  }}
-                  onClick={() => setIsEditing(false)}
-                >
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: "#1976d2",
-                    color: "#fff",
-                    textTransform: "none",
-                    "&:hover": { backgroundColor: "#115293" },
-                  }}
-                  onClick={() => setIsEditing(true)}
-                >
-                  Edit Profile
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  sx={{
-                    borderColor: "#d32f2f",
-                    textTransform: "none",
-                    "&:hover": { borderColor: "#9a0007" },
-                  }}
-                  onClick={handleDelete}
-                >
-                  Delete Profile
-                </Button>
-              </>
-            )}
-          </Box>
-        </form>
-      </Paper>
-    </Container>
+            My Profile
+          </Typography>
+
+          <form noValidate autoComplete="off">
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="First Name"
+                  name="firstName"
+                  fullWidth
+                  margin="normal"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Last Name"
+                  name="lastName"
+                  fullWidth
+                  margin="normal"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Email"
+                  name="email"
+                  fullWidth
+                  margin="normal"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Password"
+                  name="password"
+                  type="password"
+                  fullWidth
+                  margin="normal"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                />
+              </Grid>
+            </Grid>
+
+            <Box
+              sx={{ display: "flex", justifyContent: "center", gap: 3, mt: 4 }}
+            >
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#1976d2",
+                      color: "#fff",
+                      textTransform: "none",
+                      "&:hover": { backgroundColor: "#115293" },
+                    }}
+                    onClick={handleUpdate}
+                  >
+                    Save Changes
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      borderColor: "#1976d2",
+                      textTransform: "none",
+                      "&:hover": { borderColor: "#115293" },
+                    }}
+                    onClick={() => setIsEditing(false)}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#1976d2",
+                      color: "#fffff",
+                      textTransform: "none",
+                      "&:hover": { backgroundColor: "#115293" },
+                    }}
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Edit Profile
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    sx={{
+                      borderColor: "#d32f2f",
+                      textTransform: "none",
+                      "&:hover": { borderColor: "#1976d2" },
+                    }}
+                    onClick={handleDelete}
+                  >
+                    Delete Profile
+                  </Button>
+                </>
+              )}
+            </Box>
+          </form>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

@@ -44,7 +44,7 @@ const CustomRating = ({ label, value, maxValue }) => (
         backgroundColor: "#e0e0e0",
         "& .MuiLinearProgress-bar": {
           borderRadius: 5,
-          background: "linear-gradient(to right, #76c7c0, #84fab0)",
+          backgroundColor: "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
         },
       }}
     />
@@ -179,7 +179,7 @@ const CarDetailScreen = () => {
   return (
     <Box
       sx={{
-        background: "linear-gradient(to right, #2c3e50, #bdc3c7)",
+        background:  "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
         minHeight: "100vh",
         pt: 2,
       }}
@@ -405,7 +405,7 @@ const CarDetailScreen = () => {
                     sx={{
                       height: "100%",
                       background: "linear-gradient(to right, #43cea2, #185a9d)",
-                      color: "#fff",
+                      color: "black",
                       borderRadius: "30px",
                     }}
                     disabled={!isAuthenticated}

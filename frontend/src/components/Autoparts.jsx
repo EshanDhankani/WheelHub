@@ -96,7 +96,7 @@ const PriceChip = styled(Chip)(({ theme }) => ({
   position: "absolute",
   top: theme.spacing(2),
   right: theme.spacing(2),
-  marginTop: "245px",
+  marginTop: "200px",
 }));
 
 const FilterSectionTitle = styled(Typography)(({ theme }) => ({
@@ -354,10 +354,10 @@ const Autoparts = () => {
                     <StyledCard>
                       <CardMedia
                         component="img"
-                        height="240"
+                        height="200"
                         image={`http://localhost:3001/${accessory.images[0]}`}
                         alt={accessory.accessoryInfo}
-                        sx={{ width: "100%", height: "50%" }}
+                        sx={{ width: "100%", height: "200px",objectFit: "cover", }}
                       />
                       <CardContent sx={{ padding: 2 }}>
                         <RatingBox>

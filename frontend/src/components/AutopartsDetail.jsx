@@ -14,7 +14,6 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
-  MessageCircle,
   Phone,
 } from "lucide-react";
 import Navbar from "./Navbar";
@@ -65,6 +64,7 @@ const QuantityButton = styled(Button)({
 
 const StyledCard = styled(Card)(({ theme }) => ({
   border: "1px solid rgba(0, 123, 255, 0.2)",
+  
   borderRadius: "16px",
   boxShadow: theme.shadows[3],
   backgroundColor: theme.palette.background.paper,
@@ -112,6 +112,8 @@ const AutopartsDetail = () => {
   return (
     <>
       <Navbar />
+      
+
       <Container maxWidth="lg" sx={{ py: 10, mt: 5 }}>
         <Typography
           variant="h4"
@@ -228,14 +230,7 @@ const AutopartsDetail = () => {
                   {parseInt(mobileNumber).toString()}
                 </Typography>
 
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{ mt: 2, background: "#1976D2", color: "#fff" }}
-                  startIcon={<MessageCircle />}
-                >
-                  Send Message
-                </Button>
+              
               </CardContent>
             </StyledCard>
 
@@ -258,6 +253,7 @@ const AutopartsDetail = () => {
           </Grid>
         </Grid>
       </Container>
+      <Box/>
     </>
   );
 };

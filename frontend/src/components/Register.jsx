@@ -142,6 +142,7 @@ const Register = () => {
                 fontSize: 64,
                 position: "relative",
                 alignSelf: "flex-start",
+                color:"#333"
               }}
               variant="h5"
             >
@@ -154,9 +155,7 @@ const Register = () => {
                   bottom: -4,
                   height: 6,
                   width: "100%",
-                  background:
-                    "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
-
+                  background: "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
                   borderRadius: "5px",
                 }}
               />
