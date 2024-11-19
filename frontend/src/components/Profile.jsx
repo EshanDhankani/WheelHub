@@ -1,11 +1,10 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { TextField, Button, Grid, Typography, Container, Box } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-
 
 const theme = createTheme({
   typography: {
@@ -23,12 +22,26 @@ const ProfileEdit = () => {
     firstName: "",
     lastName: "",
     email: "",
-    password: ""
+    password: "",
   });
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-
+  // useEffect(() => {
+  //   const userEmail = localStorage.getItem("userEmail");
+  //   if (userEmail) {
+  //     axios
+  //       .get(`http://localhost:3001/user?email=${userEmail}`)
+  //       .then((response) => {
+  //         const { email, name, password } = response.data;
+  //         const [firstName, lastName] = name ? name.split(" ") : ["", ""];
+  //         setProfileData({ firstName, lastName, email, password });
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching user data", error);
+  //       });
+  //   }
+  // }, []);
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
     if (userEmail) {
@@ -36,14 +49,16 @@ const navigate = useNavigate();
         .get(`http://localhost:3001/user?email=${userEmail}`)
         .then((response) => {
           const { email, name, password } = response.data;
-          const [firstName, lastName] = name.split(" ");
+          const [firstName, lastName] = name ? name.split(" ") : ["", ""];
           setProfileData({ firstName, lastName, email, password });
         })
         .catch((error) => {
           console.error("Error fetching user data", error);
+          toast.error("Failed to fetch user details");
         });
     }
   }, []);
+  
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -53,19 +68,42 @@ const navigate = useNavigate();
     }));
   };
 
+  // const handleSubmit = (event) => {
+  //   event.preventDefault();
+  //   const { firstName, lastName, email, password } = profileData;
+  //   const updatedData = {
+  //     name: `${firstName} ${lastName}`,
+  //     password,
+  //   };
+  //   axios
+  //     .post(`http://localhost:3001/updateUser?email=${email}`, updatedData)
+  //     .then((response) => {
+  //       console.log("Profile updated successfully:", response.data);
+  //       toast.success("Profile updated successfully!", {});
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error updating profile:", error);
+  //       toast.error("Error updating profile:");
+  //     });
+  // };
+
+
   const handleSubmit = (event) => {
     event.preventDefault();
+    const { firstName, lastName, password } = profileData;
+    
     axios
-      .post("http://localhost:3001/updateUser", profileData)
+      .put("http://localhost:3001/updateProfile", { firstName, lastName, password })
       .then((response) => {
         console.log("Profile updated successfully:", response.data);
-        toast.success("Profile updated successfully!", {});
+        toast.success("Profile updated successfully!");
       })
       .catch((error) => {
         console.error("Error updating profile:", error);
-        toast.error("Error updating profile:");
+        toast.error("Error updating profile");
       });
   };
+  
 
   const handleDelete = () => {
     axios
@@ -75,8 +113,9 @@ const navigate = useNavigate();
         toast.success("Profile deleted successfully!", {});
         localStorage.removeItem("userEmail");
         setTimeout(() => {
-            navigate("/login");
-          }, 2000);      })
+          navigate("/login");
+        }, 2000);
+      })
       .catch((error) => {
         console.error("Error deleting profile:", error);
         toast.error("Error deleting profile:");
@@ -100,6 +139,7 @@ const navigate = useNavigate();
           <Box component="form" noValidate sx={{ mt: 3 }} onSubmit={handleSubmit}>
             <ToastContainer />
             <Grid container spacing={2}>
+              
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="fname"
@@ -133,7 +173,7 @@ const navigate = useNavigate();
                   name="email"
                   autoComplete="email"
                   value={profileData.email}
-                  onChange={handleChange}
+                  disabled
                 />
               </Grid>
               <Grid item xs={12}>

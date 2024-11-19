@@ -131,8 +131,7 @@ const Login = () => {
                   bottom: -5,
                   height: 6,
                   width: "75%",
-                  background:
-                    "linear-gradient(120deg, #D52728, #33C0FF, #5733FF, #030947)",
+                  background:"linear-gradient(120deg, #D52728, #33C0FF, #5733FF, #030947)",
                   borderRadius: "5px",
                   marginLeft: 6,
                 }}

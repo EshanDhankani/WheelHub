@@ -20,7 +20,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { MapPin, MessageCircle, Phone } from "lucide-react";
+import { MapPin, MessageCircle, Phone, Image as ImageIcon } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -68,6 +68,7 @@ const CarDetailScreen = () => {
 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [image, setImage] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [fontColor, setFontColor] = useState("#000000");
@@ -123,7 +124,20 @@ const CarDetailScreen = () => {
   }, [id, isAuthenticated]);
 
   const handleSendMessage = async () => {
-    if (newMessage.trim() === "") return;
+    // if (newMessage.trim() === "") return;
+    if (newMessage.trim() === "" && !image) return;
+
+    const formData = new FormData();
+    formData.append("carAdId", id);
+    formData.append("receiverId", carDetails.userId._id || carDetails.userId);
+    formData.append("message", newMessage);
+    formData.append("fontColor", fontColor);
+    formData.append("fontSize", fontSize);
+    formData.append("fontStyle", fontStyle);
+    if (image){
+
+   formData.append("image", image);
+  } 
 
     try {
       const response = await axios.post(
@@ -141,6 +155,7 @@ const CarDetailScreen = () => {
 
       setMessages([...messages, response.data.newMessage]);
       setNewMessage("");
+      setImage(null);
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -151,6 +166,16 @@ const CarDetailScreen = () => {
       handleSendMessage();
     }
   };
+
+  const handleImageUpload = (e) => {
+    if (e.target.files.length > 0) {
+      setImage(e.target.files[0]);
+    }
+  };
+
+
+
+  
 
   if (loading) {
     return (
@@ -179,7 +204,7 @@ const CarDetailScreen = () => {
   return (
     <Box
       sx={{
-        background:  "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
+        background: "linear-gradient(142deg, #030950, #12175F, #2F1F2F)",
         minHeight: "100vh",
         pt: 2,
       }}
@@ -319,6 +344,7 @@ const CarDetailScreen = () => {
                 {messages.map((msg, index) => (
                   <ListItem
                     key={index}
+
                     sx={{
                       display: "flex",
                       justifyContent:
@@ -378,7 +404,7 @@ const CarDetailScreen = () => {
                 ))}
               </List>
               <Grid container spacing={2}>
-                <Grid item xs={9}>
+                <Grid item xs={8}>
                   <TextField
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
@@ -397,7 +423,28 @@ const CarDetailScreen = () => {
                     disabled={!isAuthenticated}
                   />
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
+                  <Button
+                    variant="contained"
+                    component="label"
+                    fullWidth
+                    sx={{
+                      height: "100%",
+                      borderRadius: "30px",
+                    }}
+                    disabled={!isAuthenticated}
+                  >
+                    <ImageIcon />
+                    <input
+                      type="file"
+                      hidden
+                      onChange={handleImageUpload}
+                      accept="image/*"
+                    />
+                  </Button>
+                  </Grid>
+
+                <Grid item xs={2}>
                   <Button
                     variant="contained"
                     onClick={handleSendMessage}

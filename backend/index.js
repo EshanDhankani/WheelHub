@@ -14,7 +14,6 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const ResetToken = require("./models/ResetPassword");
 
-
 const client_id =
   "467364977483-n6ace55lvjoif05bjv4enqbusb91clir.apps.googleusercontent.com";
 const secret_id = "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";
@@ -79,13 +78,14 @@ async function sendVerificationEmail(email, token) {
 
 
 
-app.post("/messages", async (req, res) => {
+app.post("/messages", upload.single("image"), async (req, res) => {
   console.log("User session:", req.session.user);
   if (!req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
 
   const { carAdId, receiverId, message, fontColor, fontSize, fontStyle } = req.body;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : "";
 
   try {
     const newMessage = new MessageModel({
@@ -95,7 +95,8 @@ app.post("/messages", async (req, res) => {
       message,
       fontColor,
       fontSize,
-      fontStyle, 
+      fontStyle,
+      imageUrl,
     });
 
     const savedMessage = await newMessage.save();
@@ -104,6 +105,7 @@ app.post("/messages", async (req, res) => {
     res.status(500).json({ message: "Error sending message", error: error.message });
   }
 });
+
 
 app.get("/messages/:carAdId", async (req, res) => {
   if (!req.session.user) {
@@ -116,12 +118,13 @@ app.get("/messages/:carAdId", async (req, res) => {
     const messages = await MessageModel.find({ carAdId })
       .populate("senderId", "name email")
       .populate("receiverId", "name email");
-    res.status(200).json(messages); 
+    res.status(200).json(messages);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching messages", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching messages", error: error.message });
   }
 });
-
 
 app.get("/carAds", async (req, res) => {
   try {
@@ -421,23 +424,48 @@ app.put("/updateProfile", async (req, res) => {
   }
 
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, password } = req.body;
+    const name = `${firstName} ${lastName}`; // Combine firstName and lastName
 
     const updatedUser = await FormDataModel.findByIdAndUpdate(
       req.session.user._id,
-      { firstName, lastName, email, password },
+      { name, ...(password && { password }) }, // Only update password if provided
       { new: true, runValidators: true }
     );
 
-    req.session.user = updatedUser;
+    req.session.user = updatedUser; // Update session with new data
 
     res.json({ message: "Profile updated successfully", user: updatedUser });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating profile", error: error.message });
+    res.status(500).json({ message: "Error updating profile", error: error.message });
   }
 });
+
+
+// app.put("/updateProfile", async (req, res) => {
+//   if (!req.session.user) {
+//     return res.status(401).json({ message: "Not authenticated" });
+//   }
+
+//   try {
+//     const { firstName, lastName, password } = req.body;
+//     const name = `${firstName} ${lastName}`; // Combine firstName and lastName into a single name
+
+//     const updatedUser = await FormDataModel.findByIdAndUpdate(
+//       req.session.user._id,
+//       { name, password },
+//       { new: true, runValidators: true }
+//     );
+
+//     req.session.user = updatedUser;
+
+//     res.json({ message: "Profile updated successfully", user: updatedUser });
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "Error updating profile", error: error.message });
+//   }
+// });
 
 app.delete("/deleteProfile", async (req, res) => {
   if (!req.session.user) {
@@ -511,7 +539,7 @@ app.delete("/carAds/:id", async (req, res) => {
   }
 });
 
-/////
+
 app.put("/accessoryAds/:id", upload.array("images", 3), async (req, res) => {
   try {
     const { id } = req.params;
@@ -556,7 +584,7 @@ app.put("/accessoryAds/:id", upload.array("images", 3), async (req, res) => {
   }
 });
 
-////
+
 app.delete("/accessoryAds/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -641,3 +669,6 @@ app.get(
 app.listen(3001, () => {
   console.log("Server listening on http://127.0.0.1:3001");
 });
+
+
+

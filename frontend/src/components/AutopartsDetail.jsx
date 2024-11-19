@@ -10,12 +10,7 @@ import {
   CardContent,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import {
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Phone,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Phone } from "lucide-react";
 import Navbar from "./Navbar";
 
 const ImageSlider = styled(Box)(({ theme }) => ({
@@ -64,7 +59,7 @@ const QuantityButton = styled(Button)({
 
 const StyledCard = styled(Card)(({ theme }) => ({
   border: "1px solid rgba(0, 123, 255, 0.2)",
-  
+
   borderRadius: "16px",
   boxShadow: theme.shadows[3],
   backgroundColor: theme.palette.background.paper,
@@ -112,7 +107,6 @@ const AutopartsDetail = () => {
   return (
     <>
       <Navbar />
-      
 
       <Container maxWidth="lg" sx={{ py: 10, mt: 5 }}>
         <Typography
@@ -229,8 +223,6 @@ const AutopartsDetail = () => {
                   <Phone style={{ marginRight: 3 }} /> Contact: 0
                   {parseInt(mobileNumber).toString()}
                 </Typography>
-
-              
               </CardContent>
             </StyledCard>
 
@@ -253,7 +245,7 @@ const AutopartsDetail = () => {
           </Grid>
         </Grid>
       </Container>
-      <Box/>
+      <Box />
     </>
   );
 };
