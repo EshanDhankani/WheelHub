@@ -208,6 +208,7 @@ const UsedCars = () => {
       try {
         setLoading(true);
         const response = await axios.get("http://localhost:3001/carAds");
+        // const response = await axios.get("/car/getCarAds");
         setCarAds(response.data);
         setFilteredCarAds(response.data);
 

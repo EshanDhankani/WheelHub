@@ -8,19 +8,11 @@ import {
   Box,
   CircularProgress,
   Grid,
-  Button,
   Card,
   CardContent,
   LinearProgress,
-  TextField,
-  List,
-  ListItem,
-  IconButton,
-  InputAdornment,
-  Select,
-  MenuItem,
 } from "@mui/material";
-import { MapPin, MessageCircle, Phone, Image as ImageIcon } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -66,15 +58,6 @@ const CarDetailScreen = () => {
   const [error, setError] = useState(null);
   const { id } = useParams();
 
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [image, setImage] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const [fontColor, setFontColor] = useState("#000000");
-  const [fontSize, setFontSize] = useState(14);
-  const [fontStyle, setFontStyle] = useState("Arial");
-
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
@@ -90,92 +73,8 @@ const CarDetailScreen = () => {
       }
     };
 
-    const fetchMessages = async () => {
-      try {
-        const messageResponse = await axios.get(
-          `http://localhost:3001/messages/${id}`,
-          { withCredentials: true }
-        );
-        setMessages(messageResponse.data);
-      } catch (error) {
-        console.warn("Failed to fetch messages:", error);
-        setMessages([]);
-      }
-    };
-
-    const checkAuthentication = async () => {
-      try {
-        const response = await axios.get("http://localhost:3001/currentUser", {
-          withCredentials: true,
-        });
-        setIsAuthenticated(response.data !== null);
-      } catch (error) {
-        setIsAuthenticated(false);
-      }
-    };
-
     fetchCarDetails();
-
-    checkAuthentication().then(() => {
-      if (isAuthenticated) {
-        fetchMessages();
-      }
-    });
-  }, [id, isAuthenticated]);
-
-  const handleSendMessage = async () => {
-    // if (newMessage.trim() === "") return;
-    if (newMessage.trim() === "" && !image) return;
-
-    const formData = new FormData();
-    formData.append("carAdId", id);
-    formData.append("receiverId", carDetails.userId._id || carDetails.userId);
-    formData.append("message", newMessage);
-    formData.append("fontColor", fontColor);
-    formData.append("fontSize", fontSize);
-    formData.append("fontStyle", fontStyle);
-    if (image){
-
-   formData.append("image", image);
-  } 
-
-    try {
-      const response = await axios.post(
-        "http://localhost:3001/messages",
-        {
-          carAdId: id,
-          receiverId: carDetails.userId._id || carDetails.userId,
-          message: newMessage,
-          fontColor,
-          fontSize,
-          fontStyle,
-        },
-        { withCredentials: true }
-      );
-
-      setMessages([...messages, response.data.newMessage]);
-      setNewMessage("");
-      setImage(null);
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSendMessage();
-    }
-  };
-
-  const handleImageUpload = (e) => {
-    if (e.target.files.length > 0) {
-      setImage(e.target.files[0]);
-    }
-  };
-
-
-
-  
+  }, [id]);
 
   if (loading) {
     return (
@@ -200,6 +99,8 @@ const CarDetailScreen = () => {
       </Container>
     );
   }
+
+  const sellerName = carDetails.userId?.name || "Unknown Seller";
 
   return (
     <Box
@@ -311,13 +212,8 @@ const CarDetailScreen = () => {
                   <Typography variant="subtitle1">Year</Typography>
                   <Typography variant="h6">{carDetails.year}</Typography>
                 </Grid>
-                <Grid item xs={6} md={3}>
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight="bold"
-                    fontSize={20}
-                    color="#B8001F"
-                  >
+                <Grid item xs={12}>
+                  <Typography variant="subtitle1" fontWeight="bold">
                     Seller Comments
                   </Typography>
                   <Typography variant="h6">
@@ -325,189 +221,6 @@ const CarDetailScreen = () => {
                   </Typography>
                 </Grid>
               </Grid>
-            </Box>
-
-            {/* Chat Box Section */}
-            <Box sx={{ mb: 4, marginTop: 10 }}>
-              <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
-                <MessageCircle style={{ marginRight: 8 }} /> Chat with Seller
-              </Typography>
-              <List
-                sx={{
-                  maxHeight: 200,
-                  overflow: "auto",
-                  border: "1px solid #ddd",
-                  borderRadius: 1,
-                  mb: 2,
-                }}
-              >
-                {messages.map((msg, index) => (
-                  <ListItem
-                    key={index}
-
-                    sx={{
-                      display: "flex",
-                      justifyContent:
-                        msg.senderId._id === carDetails.userId
-                          ? "flex-start"
-                          : "flex-end",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        background:
-                          msg.senderId._id === carDetails.userId
-                            ? "#d1e7dd"
-                            : "#f8d7da",
-                        color:
-                          msg.senderId._id === carDetails.userId
-                            ? "#0f5132"
-                            : "#842029",
-                        borderRadius:
-                          msg.senderId._id === carDetails.userId
-                            ? "15px 15px 15px 0"
-                            : "15px 15px 0 15px",
-                        maxWidth: "60%",
-                        padding: "5px",
-                        margin: "5px 0",
-                        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: "bold", marginBottom: "2px" }}
-                      >
-                        {msg.senderId.name}
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          color: msg.fontColor,
-                          fontSize: msg.fontSize,
-                          fontFamily: msg.fontStyle,
-                        }}
-                      >
-                        {msg.message}
-                      </Typography>{" "}
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          marginTop: "5px",
-                          textAlign: "right",
-                        }}
-                      >
-                        {new Date(msg.createdAt).toLocaleTimeString()}{" "}
-                      </Typography>
-                    </Box>
-                  </ListItem>
-                ))}
-              </List>
-              <Grid container spacing={2}>
-                <Grid item xs={8}>
-                  <TextField
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type a message..."
-                    fullWidth
-                    variant="outlined"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <IconButton></IconButton>
-                        </InputAdornment>
-                      ),
-                      sx: { borderRadius: "30px" },
-                    }}
-                    disabled={!isAuthenticated}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <Button
-                    variant="contained"
-                    component="label"
-                    fullWidth
-                    sx={{
-                      height: "100%",
-                      borderRadius: "30px",
-                    }}
-                    disabled={!isAuthenticated}
-                  >
-                    <ImageIcon />
-                    <input
-                      type="file"
-                      hidden
-                      onChange={handleImageUpload}
-                      accept="image/*"
-                    />
-                  </Button>
-                  </Grid>
-
-                <Grid item xs={2}>
-                  <Button
-                    variant="contained"
-                    onClick={handleSendMessage}
-                    fullWidth
-                    sx={{
-                      height: "100%",
-                      background: "linear-gradient(to right, #43cea2, #185a9d)",
-                      color: "black",
-                      borderRadius: "30px",
-                    }}
-                    disabled={!isAuthenticated}
-                  >
-                    Send
-                  </Button>
-                </Grid>
-              </Grid>
-
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle1">Customize Message</Typography>
-                <Grid container spacing={2} sx={{ mt: 1 }}>
-                  <Grid item xs={4}>
-                    <Select
-                      fullWidth
-                      value={fontColor}
-                      onChange={(e) => setFontColor(e.target.value)}
-                      variant="outlined"
-                    >
-                      <MenuItem value="#000000">Black</MenuItem>
-                      <MenuItem value="#ff0000">Red</MenuItem>
-                      <MenuItem value="#00ff00">Green</MenuItem>
-                      <MenuItem value="#0000ff">Blue</MenuItem>
-                    </Select>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Select
-                      fullWidth
-                      value={fontSize}
-                      onChange={(e) => setFontSize(e.target.value)}
-                      variant="outlined"
-                    >
-                      <MenuItem value={14}>14px</MenuItem>
-                      <MenuItem value={16}>16px</MenuItem>
-                      <MenuItem value={18}>18px</MenuItem>
-                      <MenuItem value={20}>20px</MenuItem>
-                    </Select>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Select
-                      fullWidth
-                      value={fontStyle}
-                      onChange={(e) => setFontStyle(e.target.value)}
-                      variant="outlined"
-                    >
-                      <MenuItem value="Arial">Arial</MenuItem>
-                      <MenuItem value="Courier New">Courier New</MenuItem>
-                      <MenuItem value="Georgia">Georgia</MenuItem>
-                      <MenuItem value="Times New Roman">
-                        Times New Roman
-                      </MenuItem>
-                    </Select>
-                  </Grid>
-                </Grid>
-              </Box>
             </Box>
           </Grid>
 
@@ -522,6 +235,12 @@ const CarDetailScreen = () => {
             >
               <CardContent>
                 <Typography
+                  variant="h6"
+                  sx={{ fontWeight: "bold", mb: 2 }}
+                >
+                  Seller: {sellerName}
+                </Typography>
+                <Typography
                   variant="h4"
                   sx={{ fontWeight: "bold", color: "#D32F2F" }}
                 >
@@ -533,13 +252,13 @@ const CarDetailScreen = () => {
                 </Typography>
               </CardContent>
             </Card>
+
             <Card
               sx={{
                 mb: 4,
                 p: 3,
                 borderRadius: 4,
                 boxShadow: "0 10px 16px rgba(0,0,0,0.4)",
-                marginTop: "100px",
               }}
             >
               <CardContent>
@@ -547,12 +266,12 @@ const CarDetailScreen = () => {
                   variant="h6"
                   sx={{ fontWeight: "bold", color: "#D32F2F" }}
                 >
-                  Safety Tips for transaction
+                  Safety Tips for Transactions
                 </Typography>
-                <Typography variant="h6" sx={{ mt: 1 }}>
-                  <Typography>1. Use a safe location to meet seller</Typography>
-                  <Typography>2. Avoid cash transactions</Typography>
-                  <Typography>3. Beware of unrealistic offers</Typography>
+                <Typography variant="body1">
+                  1. Use a safe location to meet the seller. <br />
+                  2. Avoid cash transactions. <br />
+                  3. Beware of unrealistic offers.
                 </Typography>
               </CardContent>
             </Card>

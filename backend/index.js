@@ -76,16 +76,16 @@ async function sendVerificationEmail(email, token) {
   }
 }
 
-
-
-app.post("/messages", upload.single("image"), async (req, res) => {
-  console.log("User session:", req.session.user);
+app.post("/messages", upload.array("images", 8), async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
 
-  const { carAdId, receiverId, message, fontColor, fontSize, fontStyle } = req.body;
-  const imageUrl = req.file ? `/uploads/${req.file.filename}` : "";
+  const { carAdId, receiverId, message, fontColor, fontSize, fontStyle } =
+    req.body;
+  const imageUrls = req.files.map(
+    (file) => `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+  );
 
   try {
     const newMessage = new MessageModel({
@@ -96,16 +96,19 @@ app.post("/messages", upload.single("image"), async (req, res) => {
       fontColor,
       fontSize,
       fontStyle,
-      imageUrl,
+      imageUrl: imageUrls, // Store array of image URLs
     });
 
     const savedMessage = await newMessage.save();
-    res.status(201).json({ message: "Message sent successfully", newMessage: savedMessage });
+    res
+      .status(201)
+      .json({ message: "Message sent successfully", newMessage: savedMessage });
   } catch (error) {
-    res.status(500).json({ message: "Error sending message", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error sending message", error: error.message });
   }
 });
-
 
 app.get("/messages/:carAdId", async (req, res) => {
   if (!req.session.user) {
@@ -128,10 +131,15 @@ app.get("/messages/:carAdId", async (req, res) => {
 
 app.get("/carAds", async (req, res) => {
   try {
+    console.log("Fetching car ads...");
     const carAds = await CarAdModel.find();
+    console.log("Car ads fetched:", carAds);
     res.json(carAds);
   } catch (error) {
-    res.status(500).json({ message: "Error", error: error.message });
+    console.error("Error fetching car ads:", error.message);
+    res
+      .status(500)
+      .json({ message: "Error fetching car ads", error: error.message });
   }
 });
 
@@ -398,19 +406,22 @@ app.post("/reset-password", async (req, res) => {
   }
 });
 
+
 app.post("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error logging out", error: err.message });
+      return res.status(500).json({ message: "Error logging out" });
     }
-    res.clearCookie("connect.sid");
+    res.clearCookie("connect.sid"); // Clear session cookie
     res.json({ message: "Logged out successfully" });
   });
 });
 
+
+
+
 app.get("/currentUser", (req, res) => {
+  console.log("Current session user:", req.session.user);
   if (req.session.user) {
     res.json(req.session.user);
   } else {
@@ -425,47 +436,23 @@ app.put("/updateProfile", async (req, res) => {
 
   try {
     const { firstName, lastName, password } = req.body;
-    const name = `${firstName} ${lastName}`; // Combine firstName and lastName
+    const name = `${firstName} ${lastName}`;
 
     const updatedUser = await FormDataModel.findByIdAndUpdate(
       req.session.user._id,
-      { name, ...(password && { password }) }, // Only update password if provided
+      { name, ...(password && { password }) },
       { new: true, runValidators: true }
     );
 
-    req.session.user = updatedUser; // Update session with new data
+    req.session.user = updatedUser;
 
     res.json({ message: "Profile updated successfully", user: updatedUser });
   } catch (error) {
-    res.status(500).json({ message: "Error updating profile", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating profile", error: error.message });
   }
 });
-
-
-// app.put("/updateProfile", async (req, res) => {
-//   if (!req.session.user) {
-//     return res.status(401).json({ message: "Not authenticated" });
-//   }
-
-//   try {
-//     const { firstName, lastName, password } = req.body;
-//     const name = `${firstName} ${lastName}`; // Combine firstName and lastName into a single name
-
-//     const updatedUser = await FormDataModel.findByIdAndUpdate(
-//       req.session.user._id,
-//       { name, password },
-//       { new: true, runValidators: true }
-//     );
-
-//     req.session.user = updatedUser;
-
-//     res.json({ message: "Profile updated successfully", user: updatedUser });
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error updating profile", error: error.message });
-//   }
-// });
 
 app.delete("/deleteProfile", async (req, res) => {
   if (!req.session.user) {
@@ -494,15 +481,17 @@ app.delete("/deleteProfile", async (req, res) => {
 
 app.get("/carAds/:id", async (req, res) => {
   try {
-    const carAd = await CarAdModel.findById(req.params.id);
+    const carAd = await CarAdModel.findById(req.params.id).populate("userId", "name");
     if (!carAd) {
       return res.status(404).json({ message: "Car ad not found" });
     }
     res.json(carAd);
   } catch (error) {
-    res.status(500).json({ message: "Error", error: error.message });
+    res.status(500).json({ message: "Error fetching car ad", error: error.message });
   }
 });
+
+
 
 app.put("/carAds/:id", async (req, res) => {
   try {
@@ -538,7 +527,6 @@ app.delete("/carAds/:id", async (req, res) => {
       .json({ message: "Error deleting car ad", error: error.message });
   }
 });
-
 
 app.put("/accessoryAds/:id", upload.array("images", 3), async (req, res) => {
   try {
@@ -583,7 +571,6 @@ app.put("/accessoryAds/:id", upload.array("images", 3), async (req, res) => {
       .json({ message: "Error updating accessory ad", error: error.message });
   }
 });
-
 
 app.delete("/accessoryAds/:id", async (req, res) => {
   try {
@@ -670,5 +657,26 @@ app.listen(3001, () => {
   console.log("Server listening on http://127.0.0.1:3001");
 });
 
+//////////////////////
 
+// require('dotenv').config();
+// const cors = require('cors');
+// const express = require('express');
+// const connectDB = require('../config/db');
+// const userRoutes = require('./routes/authRoutes');
+// const carAdRoutes = require('../backend/routes/carAdRoutes')
 
+// const path = require('path');
+
+// // Middleware
+// const app = express();
+// app.use(express.json());
+// const port = process.env.PORT || 5000;
+// connectDB();
+
+// app.use(cors());
+
+// app.use('/api/users', userRoutes);
+// app.use('/api/car', carAdRoutes);
+
+// app.listen(port, () => console.log(`Server running on port ${port}`));

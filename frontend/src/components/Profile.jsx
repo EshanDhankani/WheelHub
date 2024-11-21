@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { TextField, Button, Grid, Typography, Container, Box } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Grid,
+  Typography,
+  Container,
+  Box,
+} from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -27,21 +34,6 @@ const ProfileEdit = () => {
 
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const userEmail = localStorage.getItem("userEmail");
-  //   if (userEmail) {
-  //     axios
-  //       .get(`http://localhost:3001/user?email=${userEmail}`)
-  //       .then((response) => {
-  //         const { email, name, password } = response.data;
-  //         const [firstName, lastName] = name ? name.split(" ") : ["", ""];
-  //         setProfileData({ firstName, lastName, email, password });
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching user data", error);
-  //       });
-  //   }
-  // }, []);
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
     if (userEmail) {
@@ -58,7 +50,6 @@ const ProfileEdit = () => {
         });
     }
   }, []);
-  
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -68,32 +59,16 @@ const ProfileEdit = () => {
     }));
   };
 
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-  //   const { firstName, lastName, email, password } = profileData;
-  //   const updatedData = {
-  //     name: `${firstName} ${lastName}`,
-  //     password,
-  //   };
-  //   axios
-  //     .post(`http://localhost:3001/updateUser?email=${email}`, updatedData)
-  //     .then((response) => {
-  //       console.log("Profile updated successfully:", response.data);
-  //       toast.success("Profile updated successfully!", {});
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error updating profile:", error);
-  //       toast.error("Error updating profile:");
-  //     });
-  // };
-
-
   const handleSubmit = (event) => {
     event.preventDefault();
     const { firstName, lastName, password } = profileData;
-    
+
     axios
-      .put("http://localhost:3001/updateProfile", { firstName, lastName, password })
+      .put("http://localhost:3001/updateProfile", {
+        firstName,
+        lastName,
+        password,
+      })
       .then((response) => {
         console.log("Profile updated successfully:", response.data);
         toast.success("Profile updated successfully!");
@@ -103,7 +78,6 @@ const ProfileEdit = () => {
         toast.error("Error updating profile");
       });
   };
-  
 
   const handleDelete = () => {
     axios
@@ -133,13 +107,22 @@ const ProfileEdit = () => {
             alignItems: "center",
           }}
         >
-          <Typography component="h1" variant="h5" alignSelf="flex-start" fontWeight="600">
+          <Typography
+            component="h1"
+            variant="h5"
+            alignSelf="flex-start"
+            fontWeight="600"
+          >
             Edit profile
           </Typography>
-          <Box component="form" noValidate sx={{ mt: 3 }} onSubmit={handleSubmit}>
+          <Box
+            component="form"
+            noValidate
+            sx={{ mt: 3 }}
+            onSubmit={handleSubmit}
+          >
             <ToastContainer />
             <Grid container spacing={2}>
-              
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="fname"
@@ -202,7 +185,12 @@ const ProfileEdit = () => {
                   Save
                 </Button>
               </Box>
-              <Button onClick={handleDelete} variant="contained" color="primary" sx={{ background: '#D52728' }}>
+              <Button
+                onClick={handleDelete}
+                variant="contained"
+                color="primary"
+                sx={{ background: "#D52728" }}
+              >
                 Delete
               </Button>
             </Box>
