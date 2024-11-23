@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Container,
@@ -11,6 +11,7 @@ import {
   Card,
   CardContent,
   LinearProgress,
+  Button,
 } from "@mui/material";
 import { MapPin, Phone } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -57,6 +58,7 @@ const CarDetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCarDetails = async () => {
@@ -234,10 +236,7 @@ const CarDetailScreen = () => {
               }}
             >
               <CardContent>
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: "bold", mb: 2 }}
-                >
+                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
                   Seller: {sellerName}
                 </Typography>
                 <Typography
@@ -275,6 +274,24 @@ const CarDetailScreen = () => {
                 </Typography>
               </CardContent>
             </Card>
+
+            <Button
+              variant="contained"
+              onClick={() =>
+                navigate("/chat", { state: { carDetails, carId: id } })
+              }
+              fullWidth
+              sx={{
+                mt: 2,
+                backgroundColor: "#030950",
+                color: "#ffffff",
+                "&:hover": {
+                  backgroundColor: "#020738",
+                },
+              }}
+            >
+              Contact Me
+            </Button>
           </Grid>
         </Grid>
       </Container>

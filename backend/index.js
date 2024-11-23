@@ -97,6 +97,7 @@ app.post("/messages", upload.array("images", 8), async (req, res) => {
       fontSize,
       fontStyle,
       imageUrl: imageUrls, // Store array of image URLs
+      isSeen: false,
     });
 
     const savedMessage = await newMessage.save();
@@ -109,6 +110,25 @@ app.post("/messages", upload.array("images", 8), async (req, res) => {
       .json({ message: "Error sending message", error: error.message });
   }
 });
+
+// app.get("/messages/:carAdId", async (req, res) => {
+//   if (!req.session.user) {
+//     return res.status(401).json({ message: "Not authenticated" });
+//   }
+
+//   const { carAdId } = req.params;
+
+//   try {
+//     const messages = await MessageModel.find({ carAdId })
+//       .populate("senderId", "name email")
+//       .populate("receiverId", "name email");
+//     res.status(200).json(messages);
+//   } catch (error) {
+//     res
+//       .status(500)
+//       .json({ message: "Error fetching messages", error: error.message });
+//   }
+// });
 
 app.get("/messages/:carAdId", async (req, res) => {
   if (!req.session.user) {
@@ -123,11 +143,30 @@ app.get("/messages/:carAdId", async (req, res) => {
       .populate("receiverId", "name email");
     res.status(200).json(messages);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching messages", error: error.message });
+    res.status(500).json({ message: "Error fetching messages", error: error.message });
   }
 });
+
+
+// Endpoint to update the message status to "seen"
+app.put("/messages/seen/:messageId", async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const updatedMessage = await MessageModel.findByIdAndUpdate(
+      messageId,
+      { isSeen: true },
+      { new: true }
+    );
+    if (!updatedMessage) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+    res.status(200).json({ message: "Message marked as seen", updatedMessage });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating message", error: error.message });
+  }
+});
+
+
 
 app.get("/carAds", async (req, res) => {
   try {
@@ -406,7 +445,6 @@ app.post("/reset-password", async (req, res) => {
   }
 });
 
-
 app.post("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -416,9 +454,6 @@ app.post("/logout", (req, res) => {
     res.json({ message: "Logged out successfully" });
   });
 });
-
-
-
 
 app.get("/currentUser", (req, res) => {
   console.log("Current session user:", req.session.user);
@@ -481,17 +516,20 @@ app.delete("/deleteProfile", async (req, res) => {
 
 app.get("/carAds/:id", async (req, res) => {
   try {
-    const carAd = await CarAdModel.findById(req.params.id).populate("userId", "name");
+    const carAd = await CarAdModel.findById(req.params.id).populate(
+      "userId",
+      "name"
+    );
     if (!carAd) {
       return res.status(404).json({ message: "Car ad not found" });
     }
     res.json(carAd);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching car ad", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching car ad", error: error.message });
   }
 });
-
-
 
 app.put("/carAds/:id", async (req, res) => {
   try {
@@ -656,6 +694,9 @@ app.get(
 app.listen(3001, () => {
   console.log("Server listening on http://127.0.0.1:3001");
 });
+
+
+
 
 //////////////////////
 

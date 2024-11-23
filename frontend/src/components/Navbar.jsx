@@ -129,7 +129,10 @@ const Navbar = () => {
 
   return (
     <div>
-      <AppBar position="fixed" sx={{ boxShadow: 0, bgcolor: "transparent", mt: 2 }}>
+      <AppBar
+        position="fixed"
+        sx={{ boxShadow: 0, bgcolor: "transparent", mt: 2 }}
+      >
         <Container maxWidth="lg">
           <Toolbar
             variant="regular"
@@ -149,7 +152,13 @@ const Navbar = () => {
               <img src={"/logo2.png"} style={logoStyle} alt="Logo" />
             </Box>
 
-            <Box sx={{ display: { xs: "none", md: "flex" }, justifyContent: "center", flexGrow: 1 }}>
+            <Box
+              sx={{
+                display: { xs: "none", md: "flex" },
+                justifyContent: "center",
+                flexGrow: 1,
+              }}
+            >
               {menuItems.map((item) => (
                 <MenuItem
                   key={item.text}
@@ -158,23 +167,45 @@ const Navbar = () => {
                   sx={{
                     py: "6px",
                     px: "12px",
-                    borderBottom: location.pathname === item.path ? "2px solid #fff" : "none",
+                    borderBottom:
+                      location.pathname === item.path
+                        ? "2px solid #fff"
+                        : "none",
                     "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
                   }}
                 >
-                  <Typography variant="body2" sx={{ fontWeight: "600", color: "white" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: "600", color: "white" }}
+                  >
                     {item.text}
                   </Typography>
                 </MenuItem>
               ))}
-              <MenuItem onClick={handlePostAdClick} sx={{ py: "6px", px: "12px", "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" } }}>
-                <Typography variant="body2" sx={{ fontWeight: "600", color: "white" }}>
+              <MenuItem
+                onClick={handlePostAdClick}
+                sx={{
+                  py: "6px",
+                  px: "12px",
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "600", color: "white" }}
+                >
                   Post an Ad
                 </Typography>
               </MenuItem>
             </Box>
 
-            <Box sx={{ display: { xs: "none", md: "flex" }, gap: 0.5, alignItems: "center" }}>
+            <Box
+              sx={{
+                display: { xs: "none", md: "flex" },
+                gap: 0.5,
+                alignItems: "center",
+              }}
+            >
               {user ? (
                 <ProfileMenu user={user} onLogout={handleLogout} />
               ) : (
@@ -184,7 +215,12 @@ const Navbar = () => {
                   size="small"
                   component={Link}
                   to="/login"
-                  sx={{ fontWeight: "600", backgroundColor: "#C7253E", textTransform: "none", borderRadius: 15 }}
+                  sx={{
+                    fontWeight: "600",
+                    backgroundColor: "#C7253E",
+                    textTransform: "none",
+                    borderRadius: 15,
+                  }}
                 >
                   Login
                 </Button>
@@ -192,24 +228,59 @@ const Navbar = () => {
             </Box>
 
             <Box sx={{ display: { sm: "", md: "none" } }}>
-              <Button variant="text" color="primary" aria-label="menu" onClick={toggleDrawer(true)} sx={{ minWidth: "30px", p: "4px" }}>
+              <Button
+                variant="text"
+                color="primary"
+                aria-label="menu"
+                onClick={toggleDrawer(true)}
+                sx={{ minWidth: "30px", p: "4px" }}
+              >
                 <MenuIcon />
               </Button>
               <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
-                <Box sx={{ minWidth: "60dvw", p: 2, backgroundColor: "background.paper", flexGrow: 1 }}>
+                <Box
+                  sx={{
+                    minWidth: "60dvw",
+                    p: 2,
+                    backgroundColor: "background.paper",
+                    flexGrow: 1,
+                  }}
+                >
                   {menuItems.map((item) => (
-                    <MenuItem key={item.text} component={Link} to={item.path} onClick={toggleDrawer(false)} sx={{ py: 1, "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" } }}>
+                    <MenuItem
+                      key={item.text}
+                      component={Link}
+                      to={item.path}
+                      onClick={toggleDrawer(false)}
+                      sx={{
+                        py: 1,
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        },
+                      }}
+                    >
                       {item.text}
                     </MenuItem>
                   ))}
                   <Divider />
                   <MenuItem>
                     {user ? (
-                      <Button color="primary" variant="contained" sx={{ width: "100%" }} onClick={handleLogout}>
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        sx={{ width: "100%" }}
+                        onClick={handleLogout}
+                      >
                         Logout
                       </Button>
                     ) : (
-                      <Button color="primary" variant="contained" component={Link} to="/login" sx={{ width: "100%" }}>
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        component={Link}
+                        to="/login"
+                        sx={{ width: "100%" }}
+                      >
                         Login
                       </Button>
                     )}
@@ -221,9 +292,17 @@ const Navbar = () => {
         </Container>
       </AppBar>
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseDropdown}>
-        <MenuItem onClick={() => handleMenuItemClick("/PostAd")}>Sell Your Car</MenuItem>
-        <MenuItem onClick={() => handleMenuItemClick("/AccessoryAd")}>Sell Your Accessory</MenuItem>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleCloseDropdown}
+      >
+        <MenuItem onClick={() => handleMenuItemClick("/PostAd")}>
+          Sell Your Car
+        </MenuItem>
+        <MenuItem onClick={() => handleMenuItemClick("/AccessoryAd")}>
+          Sell Your Accessory
+        </MenuItem>
       </Menu>
 
       <Dialog open={showLoginPopup} onClose={handleClosePopup}>
@@ -240,7 +319,7 @@ const Navbar = () => {
           <CloseIcon />
         </IconButton>
         <DialogContent>
-        <Box textAlign="center" sx={{ maxWidth: 400 }}>
+          <Box textAlign="center" sx={{ maxWidth: 400 }}>
             <Slider {...sliderSettings}>
               <div>
                 <img
@@ -256,7 +335,9 @@ const Navbar = () => {
                   alt="Slide 2"
                   style={{ width: "80%", maxWidth: "150px", margin: "auto" }}
                 />
-                <Typography variant="body1">Safely Connect With Buyers</Typography>
+                <Typography variant="body1">
+                  Safely Connect With Buyers
+                </Typography>
               </div>
               <div>
                 <img
@@ -270,7 +351,11 @@ const Navbar = () => {
 
             <Typography variant="h6" component="div" gutterBottom></Typography>
 
-            <Typography variant="body2" color="textSecondary" gutterBottom></Typography>
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              gutterBottom
+            ></Typography>
 
             <Button
               startIcon={<GoogleIcon />}

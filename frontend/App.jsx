@@ -7,13 +7,13 @@ import UsedCars from "./src/components/UsedCars";
 import PostAd from "./src/components/PostAd";
 import CarDetailScreen from "./src/components/CarDetailScreen";
 import MyProfile from "./src/components/MyProfile";
-import MyAds from './src/components/MyAds';
+import MyAds from "./src/components/MyAds";
 import AccessoryAd from "./src/components/AccessoryAd";
 import Autoparts from "./src/components/Autoparts";
 import AutopartsDetail from "./src/components/AutopartsDetail";
 import EmailVerification from "./src/components/EmailVerification";
 import PasswordReset from "./src/components/PasswordReset";
-
+import Chat from "./src/components/Chat";
 
 function App() {
   return (
@@ -35,7 +35,8 @@ function App() {
         <Route path="/details/:id" element={<AutopartsDetail />} />
         <Route path="/verify-email" element={<EmailVerification />} />
         <Route path="/reset-password/:token" element={<PasswordReset />} />
-        
+        <Route path="/cardetails/:id" element={<CarDetailScreen />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </BrowserRouter>
   );

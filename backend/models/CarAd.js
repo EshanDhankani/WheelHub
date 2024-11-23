@@ -23,3 +23,15 @@ const CarAdSchema = new mongoose.Schema(
 
 const CarAdModel = mongoose.model("CarAd", CarAdSchema);
 module.exports = CarAdModel;
+
+
+
+
+
+
+
+
+
+
+
+

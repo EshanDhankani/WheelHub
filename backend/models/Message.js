@@ -22,6 +22,7 @@ const MessageSchema = new mongoose.Schema(
     fontSize: { type: Number, default: 14 },
     fontStyle: { type: String, default: "Arial" },
     imageUrl: { type: [String], default: [] }, 
+    isSeen: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
