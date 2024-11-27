@@ -19,10 +19,13 @@ import {
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import { Camera } from "lucide-react";
-  
-const iconStep1 = "https://wsa1.pakwheels.com/assets/sell-icons/car-221614dec8c0f3717dede556a5daad01.svg";
-const iconStep2 = "https://wsa1.pakwheels.com/assets/sell-icons/photos-708994063564767acaca738e1261f90d.svg";
-const iconStep3 = "https://wsa4.pakwheels.com/assets/sell-icons/tag-3ba531fca999b37f89be28609fe9e9c0.svg";
+
+const iconStep1 =
+  "https://wsa1.pakwheels.com/assets/sell-icons/car-221614dec8c0f3717dede556a5daad01.svg";
+const iconStep2 =
+  "https://wsa1.pakwheels.com/assets/sell-icons/photos-708994063564767acaca738e1261f90d.svg";
+const iconStep3 =
+  "https://wsa4.pakwheels.com/assets/sell-icons/tag-3ba531fca999b37f89be28609fe9e9c0.svg";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   maxWidth: 900,
@@ -54,13 +57,11 @@ const StyledButton = styled(Button)(({ theme }) => ({
   fontWeight: "bold",
   textTransform: "none",
   fontSize: "1.1rem",
-  // background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
-  backgroundColor:"#C7253E",
+  backgroundColor: "#C7253E",
   boxShadow: "0 4px 15px rgba(37, 117, 252, 0.2)",
   transition: "all 0.3s ease",
   color: "#fff",
   "&:hover": {
-    // background: "linear-gradient(135deg, #2575fc 0%, #6a11cb 100%)",
     transform: "translateY(-2px)",
     boxShadow: "0 6px 20px rgba(37, 117, 252, 0.3)",
   },
@@ -73,7 +74,7 @@ const HeaderSection = styled("div")(({ theme }) => ({
   textAlign: "center",
   boxShadow: "0 5px 15px rgba(0, 0, 0, 0.1)",
   marginBottom: theme.spacing(4),
-  marginTop: "110px"
+  marginTop: "110px",
 }));
 
 const HeaderText = styled(Typography)(({ theme }) => ({
@@ -108,8 +109,9 @@ const PostAd = () => {
     city: "",
     carInfo: "",
     year: "",
-    registeredIn: "Un-Registered",
+    transmission: "Automatic",
     exteriorColor: "",
+    engineCapacity: "",
     mileage: "",
     price: "",
     adDescription: "",
@@ -117,11 +119,14 @@ const PostAd = () => {
     images: [],
   });
 
+  const [predictedPrice, setPredictedPrice] = useState(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
+
+  const [imageClassifications, setImageClassifications] = useState([]);
 
   useEffect(() => {
     if (isEditMode) {
@@ -130,8 +135,9 @@ const PostAd = () => {
         city: adData.city,
         carInfo: adData.carInfo,
         year: adData.year,
-        registeredIn: adData.registeredIn,
+        transmission: adData.transmission,
         exteriorColor: adData.exteriorColor,
+        engineCapacity: adData.engineCapacity,
         mileage: adData.mileage,
         price: adData.price,
         adDescription: adData.adDescription,
@@ -187,6 +193,43 @@ const PostAd = () => {
     }));
   };
 
+  const classifyImages = async (images) => {
+    const classifications = [];
+
+    for (const image of images) {
+      const formData = new FormData();
+      formData.append("file", image);
+
+      try {
+        const response = await axios.post(
+          "http://localhost:8000/predict/",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        classifications.push(response.data);
+      } catch (error) {
+        console.error("Error classifying image:", error);
+        setSnackbar({
+          open: true,
+          message: "Error classifying image. Please try again.",
+          severity: "error",
+        });
+        return false;
+      }
+    }
+
+    setImageClassifications(classifications);
+    return classifications.every(
+      (classification) =>
+        classification.label === "Car" && classification.confidence > 0.9
+    );
+  };
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setFormData((prevState) => ({
@@ -202,6 +245,18 @@ const PostAd = () => {
       setSnackbar({
         open: true,
         message: "Mobile number must be exactly 11 digits.",
+        severity: "error",
+      });
+      return;
+    }
+
+    const areAllCarImages = await classifyImages(formData.images);
+
+    if (!areAllCarImages) {
+      setSnackbar({
+        open: true,
+        message:
+          "Please upload only car images. All images must be classified as cars with high confidence.",
         severity: "error",
       });
       return;
@@ -255,13 +310,59 @@ const PostAd = () => {
     }
   };
 
+  const renderImageClassifications = () => {
+    if (imageClassifications.length === 0) return null;
+
+    return (
+      <Grid item xs={12}>
+        <Typography variant="subtitle1">Image Classifications:</Typography>
+        {imageClassifications.map((classification, index) => (
+          <Typography key={index} variant="body2">
+            Image {index + 1}: {classification.label}
+            (Confidence: {(classification.confidence * 100).toFixed(2)}%)
+          </Typography>
+        ))}
+      </Grid>
+    );
+  };
+
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const handlePredictPrice = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/predict",
+        {
+          model_year: Number(formData.year),
+          mileage: Number(formData.mileage),
+          engine_capacity: Number(formData.engineCapacity),
+          name: formData.carInfo,
+          location: formData.city,
+          transmission: formData.transmission,
+          color: formData.exteriorColor,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setPredictedPrice(response.data.predicted_price);
+    } catch (error) {
+      console.error("Error predicting price:", error);
+      setSnackbar({
+        open: true,
+        message: "Error predicting price. Please try again.",
+        severity: "error",
+      });
+    }
+  };
+
   return (
     <>
-    <Navbar/>
+      <Navbar />
       <HeaderSection>
         <HeaderText>Sell your Car With 3 Easy & Simple Steps!</HeaderText>
         <StepSection>
@@ -280,7 +381,6 @@ const PostAd = () => {
         </StepSection>
       </HeaderSection>
 
-      {/* Card and Form Section */}
       <StyledCard>
         <CardContent>
           <Typography variant="h4" component="h1" align="center" gutterBottom>
@@ -334,37 +434,39 @@ const PostAd = () => {
 
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Registered In</InputLabel>
+                  <InputLabel>Transmission</InputLabel>
                   <Select
-                    name="registeredIn"
-                    value={formData.registeredIn}
+                    name="transmission"
+                    value={formData.transmission}
                     onChange={handleChange}
                   >
-                    <MenuItem value="Un-Registered">Un-Registered</MenuItem>
-                    <MenuItem value="Registered">Registered</MenuItem>
+                    <MenuItem value="Automatic">Automatic</MenuItem>
+                    <MenuItem value="Manual">Manual</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
 
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Exterior Color</InputLabel>
-                  <Select
-                    name="exteriorColor"
-                    value={formData.exteriorColor}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="White">White</MenuItem>
-                    <MenuItem value="Black">Black</MenuItem>
-                    <MenuItem value="Silver">Silver</MenuItem>
-                    <MenuItem value="Red">Red</MenuItem>
-                    <MenuItem value="Blue">Blue</MenuItem>
-                    <MenuItem value="Strong Blue Metelic">
-                      Strong Blue Metelic
-                    </MenuItem>
-                    <MenuItem value="Burgundy">Burgundy</MenuItem>
-                  </Select>
-                </FormControl>
+                <TextField
+                  name="exteriorColor"
+                  label="Exterior Color"
+                  value={formData.exteriorColor}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="engineCapacity"
+                  label="Engine Capacity (CC)"
+                  type="number"
+                  value={formData.engineCapacity}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
               </Grid>
 
               <Grid item xs={12} sm={6}>
@@ -438,11 +540,34 @@ const PostAd = () => {
                   {formData.images.length} image(s) selected
                 </Typography>
               </Grid>
+              {renderImageClassifications()}
 
               <Grid item xs={12}>
                 <StyledButton type="submit" fullWidth variant="contained">
                   {isEditMode ? "Update Ad" : "Submit Ad"}
                 </StyledButton>
+              </Grid>
+
+              <Grid item xs={12}>
+                <StyledButton
+                  type="button"
+                  fullWidth
+                  variant="outlined"
+                  onClick={handlePredictPrice}
+                >
+                  Predict Price
+                </StyledButton>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  label="Predicted Price (PKR)"
+                  value={predictedPrice || ""}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  fullWidth
+                />
               </Grid>
             </Grid>
           </form>
