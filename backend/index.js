@@ -111,25 +111,6 @@ app.post("/messages", upload.array("images", 8), async (req, res) => {
   }
 });
 
-// app.get("/messages/:carAdId", async (req, res) => {
-//   if (!req.session.user) {
-//     return res.status(401).json({ message: "Not authenticated" });
-//   }
-
-//   const { carAdId } = req.params;
-
-//   try {
-//     const messages = await MessageModel.find({ carAdId })
-//       .populate("senderId", "name email")
-//       .populate("receiverId", "name email");
-//     res.status(200).json(messages);
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error fetching messages", error: error.message });
-//   }
-// });
-
 app.get("/messages/:carAdId", async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
@@ -143,10 +124,11 @@ app.get("/messages/:carAdId", async (req, res) => {
       .populate("receiverId", "name email");
     res.status(200).json(messages);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching messages", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching messages", error: error.message });
   }
 });
-
 
 // Endpoint to update the message status to "seen"
 app.put("/messages/seen/:messageId", async (req, res) => {
@@ -162,11 +144,11 @@ app.put("/messages/seen/:messageId", async (req, res) => {
     }
     res.status(200).json({ message: "Message marked as seen", updatedMessage });
   } catch (error) {
-    res.status(500).json({ message: "Error updating message", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error updating message", error: error.message });
   }
 });
-
-
 
 app.get("/carAds", async (req, res) => {
   try {
@@ -694,9 +676,6 @@ app.get(
 app.listen(3001, () => {
   console.log("Server listening on http://127.0.0.1:3001");
 });
-
-
-
 
 //////////////////////
 

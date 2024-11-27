@@ -15,6 +15,7 @@ import {
   Grid,
   Snackbar,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
@@ -109,7 +110,7 @@ const PostAd = () => {
     city: "",
     carInfo: "",
     year: "",
-    transmission: "Automatic",
+    transmission: "",
     exteriorColor: "",
     engineCapacity: "",
     mileage: "",
@@ -202,7 +203,7 @@ const PostAd = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:8000/predict/",
+          "http://localhost:8000/predict/image",
           formData,
           {
             headers: {
@@ -230,12 +231,17 @@ const PostAd = () => {
     );
   };
 
+  const [imagePreviews, setImagePreviews] = useState([]);
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setFormData((prevState) => ({
       ...prevState,
       images: files.slice(0, 3),
     }));
+    // Generate image previews
+    const previews = files.slice(0, 3).map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
   };
 
   const handleSubmit = async (e) => {
@@ -255,8 +261,7 @@ const PostAd = () => {
     if (!areAllCarImages) {
       setSnackbar({
         open: true,
-        message:
-          "Please upload only car images. All images must be classified as cars with high confidence.",
+        message: "Please upload only car images",
         severity: "error",
       });
       return;
@@ -329,11 +334,14 @@ const PostAd = () => {
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
+  //new
+  const [loadingPricePrediction, setLoadingPricePrediction] = useState(false);
 
   const handlePredictPrice = async () => {
+    setLoadingPricePrediction(true);
     try {
       const response = await axios.post(
-        "http://localhost:8000/predict",
+        "http://localhost:8000/predict/price",
         {
           model_year: Number(formData.year),
           mileage: Number(formData.mileage),
@@ -357,6 +365,8 @@ const PostAd = () => {
         message: "Error predicting price. Please try again.",
         severity: "error",
       });
+    } finally {
+      setLoadingPricePrediction(false);
     }
   };
 
@@ -480,6 +490,17 @@ const PostAd = () => {
                   required
                 />
               </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Predicted Price (PKR)"
+                  value={predictedPrice || ""}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  fullWidth
+                  required
+                />
+              </Grid>
 
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -491,6 +512,22 @@ const PostAd = () => {
                   fullWidth
                   required
                 />
+              </Grid>
+
+              <Grid item xs={8} sm={4}>
+                <StyledButton
+                  type="button"
+                  fullWidth
+                  variant=""
+                  onClick={handlePredictPrice}
+                  disabled={loadingPricePrediction}
+                >
+                  {loadingPricePrediction ? (
+                    <CircularProgress size={24} color="contained" />
+                  ) : (
+                    "Predict Price"
+                  )}
+                </StyledButton>
               </Grid>
 
               <Grid item xs={12}>
@@ -536,6 +573,31 @@ const PostAd = () => {
                     Upload Images (Max 3)
                   </Button>
                 </label>
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={8}
+                  container
+                  spacing={2}
+                  marginTop="2rem"
+                >
+                  {imagePreviews.length > 0 &&
+                    imagePreviews.map((preview, index) => (
+                      <Grid item xs={4} key={index}>
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          style={{
+                            width: "90%",
+                            height: "auto",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      </Grid>
+                    ))}
+                </Grid>
+
                 <Typography align="center">
                   {formData.images.length} image(s) selected
                 </Typography>
@@ -546,28 +608,6 @@ const PostAd = () => {
                 <StyledButton type="submit" fullWidth variant="contained">
                   {isEditMode ? "Update Ad" : "Submit Ad"}
                 </StyledButton>
-              </Grid>
-
-              <Grid item xs={12}>
-                <StyledButton
-                  type="button"
-                  fullWidth
-                  variant="outlined"
-                  onClick={handlePredictPrice}
-                >
-                  Predict Price
-                </StyledButton>
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  label="Predicted Price (PKR)"
-                  value={predictedPrice || ""}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  fullWidth
-                />
               </Grid>
             </Grid>
           </form>
